@@ -3,11 +3,11 @@ import { useState } from "react";
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447555178484"; // must be international format
-const BOOKING_EMAIL = "aabincleaning@gmail.com"; // still used in contact section if needed
+const BOOKING_EMAIL = "aabincleaning@gmail.com";
 // ==================================================
 
 export default function App() {
-  const [open, setOpen] = useState(false); // Modal still available if you re-add a trigger later
+  const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
       <Header />
@@ -15,9 +15,8 @@ export default function App() {
       <Sections />
       <CTA />
       <Footer />
-      {/* Mobile quick actions bar (WhatsApp only) */}
-      <MobileActionBar />
-      {/* Modal remains in codebase, but no visible trigger since buttons were removed */}
+      {/* Mobile quick actions bar */}
+      <MobileActionBar onBook={() => setOpen(true)} />
       {open && <BookingModal onClose={() => setOpen(false)} />}
     </div>
   );
@@ -36,7 +35,7 @@ function Header() {
           </div>
         </div>
 
-        {/* Desktop nav (no Book button) */}
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <a href="#services" className="hover:text-white">Services</a>
           <a href="#benefits" className="hover:text-white">Benefits</a>
@@ -54,7 +53,7 @@ function Header() {
         </button>
       </div>
 
-      {/* Mobile dropdown (no Book button) */}
+      {/* Mobile dropdown */}
       {menuOpen && (
         <div className="md:hidden border-t border-[#103010] bg-[#001820]">
           <div className="max-w-6xl mx-auto px-4 py-3 grid gap-3 text-sm">
@@ -93,7 +92,6 @@ function Hero() {
             eco-friendly methods. No mess, no hassle — just spotless bins.
           </p>
 
-          {/* Primary Book button removed; keep secondary link only on >= sm */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <a
               href="#services"
@@ -162,18 +160,9 @@ function Sections() {
           <h2 className="text-3xl font-extrabold text-white">Why clean your bins?</h2>
           <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
             {[
-              {
-                t: "Kills germs",
-                d: "Removes bacteria build-up and harmful pathogens from bin surfaces.",
-              },
-              {
-                t: "Odour control",
-                d: "Deodorizes and leaves a fresh scent, even in hot weather.",
-              },
-              {
-                t: "Pest deterrent",
-                d: "Discourages flies, maggots, foxes and rodents.",
-              },
+              { t: "Kills germs", d: "Removes bacteria build-up and harmful pathogens." },
+              { t: "Odour control", d: "Deodorizes and leaves a fresh scent, even in hot weather." },
+              { t: "Pest deterrent", d: "Discourages flies, maggots, foxes and rodents." },
             ].map((b) => (
               <div
                 key={b.t}
@@ -191,7 +180,7 @@ function Sections() {
       <section id="why" className="bg-[#001820] border-y border-[#103010]">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why {BUSINESS_NAME}?</h2>
-        <div className="mt-6 grid md:grid-cols-2 gap-6 items-center">
+          <div className="mt-6 grid md:grid-cols-2 gap-6 items-center">
             <ul className="space-y-3 text-[#f0e0b0]">
               {[
                 "Professional equipment & detergents",
@@ -234,7 +223,6 @@ function CTA() {
         <h3 className="text-2xl md:text-3xl font-extrabold text-white">
           Ready for fresh bins?
         </h3>
-        {/* Booking button removed on request */}
       </div>
     </section>
   );
@@ -250,30 +238,35 @@ function Footer() {
   );
 }
 
-// Mobile fixed bottom bar for small screens (WhatsApp only)
-function MobileActionBar() {
+// Mobile fixed bottom bar for small screens (WhatsApp + Book)
+function MobileActionBar({ onBook }) {
   const minimalMsg = encodeURIComponent(
     `Hi, I'd like to book a bin clean with ${BUSINESS_NAME}.`
   );
   const wa = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${minimalMsg}`;
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 py-3">
+      <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
         <a
           href={wa}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center rounded-2xl bg-[#306030] text-white font-bold py-3"
+          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3"
         >
           WhatsApp
         </a>
+        <button
+          onClick={onBook}
+          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
+        >
+          Book
+        </button>
       </div>
     </div>
   );
 }
 
 // ---------------- BOOKING MODAL ------------------
-// (kept in codebase in case you want to re-enable a Book button later)
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
@@ -422,17 +415,4 @@ function TextArea({ label, name, value, onChange, className = "" }) {
 
 function Select({ label, name, value, onChange, options, className = "" }) {
   return (
-    <FieldShell label={label} className={className}>
-      <select
-        name={name}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white focus:outline-none"
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </select>
-    </FieldShell>
-  );
-}
+    <FieldShell label={label} className
