@@ -91,12 +91,20 @@ function Hero() {
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white">
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
-          <p className="mt-4 text-lg text-[#f0e0b0]">
-            We deep clean, sanitise, and deodorise your household wheelie bins right at
-            your doorstep. Using eco-friendly methods and professional equipment, we
-            remove dirt, germs, and odours that simple rinsing can’t. The result is
-            spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.
-          </p>
+        <p className="mt-4 text-lg text-[#f0e0b0]">
+  We deep clean, sanitise, and deodorise your household wheelie bins right at
+  your doorstep Throughout the{" "}
+  <span
+    className="text-orange-500 cursor-help"
+    title="Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18"
+  >
+    Belfast
+  </span>{" "}
+  area. Using eco-friendly methods and professional equipment, we
+  remove dirt, germs, and odours that simple rinsing can’t. The result is
+  spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.
+</p>
+
         </div>
       </div>
     </section>
