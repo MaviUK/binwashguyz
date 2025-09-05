@@ -282,7 +282,12 @@ function CTA() {
 function Footer() {
   return (
     <footer className="py-10 text-center text-xs text-[#f0e0b0]/80">
-      <div>© {new Date().getFullYear()} {BUSINESS_NAME}. Built for Netlify.</div>
+     <div>
+  © {new Date().getFullYear()} {BUSINESS_NAME}. Built By{" "}
+  <a href="https://nibing.uy" target="_blank" rel="noopener noreferrer">
+    Ni Bin Guy
+  </a>
+</div>
     </footer>
   );
 }
