@@ -1,71 +1,66 @@
-              className="px-4 py-2 rounded-2xl bg-[#306030] text-white font-bold hover:brightness-110"
-            >
-              Send on WhatsApp
-            </a>
-            <button
-              onClick={handleEmail}
-              disabled={sending}
-              className="px-4 py-2 rounded-2xl bg-[#e07010] text-black font-bold hover:brightness-110 disabled:opacity-60"
-            >
-              {sending ? "Sending..." : "Send by Email"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+// CommonJS Netlify Function (works without ESM flags)
+const { Resend } = require('resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Helper to build the plain-text email body
+function buildText(data) {
+  const {
+    business = 'Bin Wash Guyz',
+    name = '',
+    address = '',
+    postcode = '',
+    bins = '',
+    date = '',
+    notes = '',
+  } = data;
+
+  return [
+    `New bin clean request for ${business}:`,
+    `Name: ${name}`,
+    `Address: ${address}`,
+    `Postcode: ${postcode}`,
+    `Bins: ${bins}`,
+    date ? `Preferred date: ${date}` : null,
+    notes ? `Notes: ${notes}` : null,
+  ].filter(Boolean).join('\n');
 }
 
-/* ---------------- UI Field Helpers ---------------- */
-function FieldShell({ label, children, className = "" }) {
-  return (
-    <label className={`block ${className}`}>
-      <div className="text-xs mb-1 text-[#f0e0b0]/80">{label}</div>
-      {children}
-    </label>
-  );
-}
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
 
-function Text({ label, value, onChange, type = "text", className = "" }) {
-  return (
-    <FieldShell label={label} className={className}>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
-        placeholder={label}
-      />
-    </FieldShell>
-  );
-}
+  try {
+    const data = JSON.parse(event.body || '{}');
 
-function TextArea({ label, value, onChange, className = "" }) {
-  return (
-    <FieldShell label={label} className={className}>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={4}
-        className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
-        placeholder={label}
-      />
-    </FieldShell>
-  );
-}
+    // Use a verified sender. For testing, Resend allows this:
+    // 'onboarding@resend.dev'. Replace with your domain once verified.
+    const from = 'Bin Wash Guyz <onboarding@resend.dev>';
 
-function Select({ label, value, onChange, options, className = "" }) {
-  return (
-    <FieldShell label={label} className={className}>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white focus:outline-none"
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </select>
-    </FieldShell>
-  );
-}
+    const to = Array.isArray(data.to) ? data.to : [data.to || 'aabincleaning@gmail.com'];
+
+    const subject = `New Bin Cleaning Booking`;
+    const text = buildText(data);
+
+    const result = await resend.emails.send({
+      from,
+      to,
+      subject,
+      text,
+      // if you collect a customer email, you can set reply_to here:
+      // reply_to: data.email || undefined,
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ ok: true, id: result?.data?.id || null }),
+    };
+  } catch (err) {
+    console.error('sendBookingEmail error:', err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ ok: false, error: String(err) }),
+    };
+  }
+};
