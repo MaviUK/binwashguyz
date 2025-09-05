@@ -90,7 +90,7 @@ function Hero() {
 
         <div className="order-2 md:order-1">
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white">
-            Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
+            Fresh, Sanitised <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
 
           <p className="mt-4 text-lg text-[#f0e0b0]">
