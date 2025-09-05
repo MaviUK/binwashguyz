@@ -15,7 +15,7 @@ export default function App() {
       <Sections />
       <CTA />
       <Footer />
-      {/* Mobile quick actions bar */}
+      {/* Mobile quick actions bar (WhatsApp + Book) */}
       <MobileActionBar onBook={() => setOpen(true)} />
       {open && <BookingModal onClose={() => setOpen(false)} />}
     </div>
@@ -35,7 +35,7 @@ function Header() {
           </div>
         </div>
 
-        {/* Desktop nav */}
+        {/* Desktop nav (no Book button) */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <a href="#services" className="hover:text-white">Services</a>
           <a href="#benefits" className="hover:text-white">Benefits</a>
@@ -53,7 +53,7 @@ function Header() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile dropdown (no Book button) */}
       {menuOpen && (
         <div className="md:hidden border-t border-[#103010] bg-[#001820]">
           <div className="max-w-6xl mx-auto px-4 py-3 grid gap-3 text-sm">
@@ -92,6 +92,7 @@ function Hero() {
             eco-friendly methods. No mess, no hassle — just spotless bins.
           </p>
 
+          {/* Primary Book removed; keep secondary link only on >= sm */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <a
               href="#services"
@@ -223,6 +224,7 @@ function CTA() {
         <h3 className="text-2xl md:text-3xl font-extrabold text-white">
           Ready for fresh bins?
         </h3>
+        {/* Booking button removed on request */}
       </div>
     </section>
   );
@@ -415,4 +417,17 @@ function TextArea({ label, name, value, onChange, className = "" }) {
 
 function Select({ label, name, value, onChange, options, className = "" }) {
   return (
-    <FieldShell label={label} className
+    <FieldShell label={label} className={className}>
+      <select
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white focus:outline-none"
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+    </FieldShell>
+  );
+}
