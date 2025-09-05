@@ -3,7 +3,7 @@ import { useState } from "react";
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447533247375"; // must be international format
-const BOOKING_EMAIL = "info@binwashguyz.co.u";
+const BOOKING_EMAIL = "info@binwashguyz.co.uk";
 // ==================================================
 
 export default function App() {
