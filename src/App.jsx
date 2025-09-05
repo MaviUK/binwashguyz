@@ -5,6 +5,8 @@ const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447555178484"; // international format
 const BOOKING_EMAIL = "aabincleaning@gmail.com"; // email for enquiries
 const PHONE_NUMBER = "+447555178484"; // business phone number
+const BIN_OPTIONS = ["Household", "Recycling", "Food"];
+
 // ==================================================
 
 export default function App() {
@@ -313,43 +315,63 @@ function MobileActionBar({ onBook }) {
   );
 }
 
-/* ---------------- Booking Modal ---------------- */
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
     address: "",
     postcode: "",
-    bins: "Household",
+    bins: [],              // now an array (multi-select)
     date: "",
     notes: "",
   });
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
 
-  function update(k, v) {
-    setForm((f) => ({ ...f, [k]: v }));
+  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  function toggleBin(bin) {
+    setForm((f) => {
+      const exists = f.bins.includes(bin);
+      const bins = exists ? f.bins.filter((b) => b !== bin) : [...f.bins, bin];
+      return { ...f, bins };
+    });
   }
+
   function validate() {
-    if (!form.name || !form.address || !form.postcode) {
-      setError("Please fill in Name, Address and Postcode.");
+    // Require: name, address, postcode, date, at least 1 bin
+    if (!form.name.trim() || !form.address.trim() || !form.postcode.trim() || !form.date) {
+      setError("Please complete Name, Address, Postcode, and Date.");
+      return false;
+    }
+    if (form.bins.length === 0) {
+      setError("Please select at least one bin.");
       return false;
     }
     setError("");
     return true;
   }
+
+  const isValid =
+    form.name.trim() &&
+    form.address.trim() &&
+    form.postcode.trim() &&
+    form.date &&
+    form.bins.length > 0;
+
   function buildMessage() {
     return [
       `New bin clean request for ${BUSINESS_NAME}:`,
       `Name: ${form.name}`,
       `Address: ${form.address}`,
       `Postcode: ${form.postcode}`,
-      `Bins: ${form.bins}`,
-      form.date ? `Preferred date: ${form.date}` : null,
+      `Bins: ${form.bins.join(", ")}`,
+      `Preferred date: ${form.date}`,
       form.notes ? `Notes: ${form.notes}` : null,
     ]
       .filter(Boolean)
       .join("\n");
   }
+
   const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace(
     "+",
     ""
@@ -367,6 +389,7 @@ function BookingModal({ onClose }) {
           business: BUSINESS_NAME,
           to: BOOKING_EMAIL,
           ...form,
+          bins: form.bins.join(", "),
         }),
       });
       if (!res.ok) throw new Error("Failed to send");
@@ -379,67 +402,70 @@ function BookingModal({ onClose }) {
     }
   }
 
+  function handleWhatsApp() {
+    if (!validate()) return;
+    window.open(whatsappURL, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70">
       <div className="w-full max-w-2xl rounded-2xl border border-[#306030] bg-[#001820] text-[#f0e0b0] shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-[#103010]">
           <h3 className="font-extrabold text-white">Book a Clean</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl">
-            ✕
-          </button>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl">✕</button>
         </div>
 
         <form className="p-4 grid md:grid-cols-2 gap-4">
           <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
-          <Text
-            label="Postcode"
-            value={form.postcode}
-            onChange={(v) => update("postcode", v)}
-          />
-          <Text
-            label="Address"
-            value={form.address}
-            onChange={(v) => update("address", v)}
-            className="md:col-span-2"
-          />
-          <Select
-            label="Bins"
-            value={form.bins}
-            onChange={(v) => update("bins", v)}
-            options={["Household", "Recycling", "Food", "All"]}
-          />
-          <Text
-            label="Preferred Date"
-            type="date"
-            value={form.date}
-            onChange={(v) => update("date", v)}
-          />
-          <TextArea
-            label="Notes"
-            value={form.notes}
-            onChange={(v) => update("notes", v)}
-            className="md:col-span-2"
-          />
+          <Text label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
+          <Text label="Address" value={form.address} onChange={(v) => update("address", v)} className="md:col-span-2" />
+
+          {/* Multi-select bins (checkboxes) */}
+          <div className="md:col-span-2">
+            <div className="text-xs mb-1 text-[#f0e0b0]/80">Bins</div>
+            <div className="flex flex-wrap gap-2">
+              {BIN_OPTIONS.map((bin) => {
+                const checked = form.bins.includes(bin);
+                return (
+                  <label
+                    key={bin}
+                    className={`cursor-pointer select-none inline-flex items-center gap-2 rounded-xl border px-3 py-2 ${
+                      checked ? "bg-[#103010] border-[#306030]" : "bg-[#003040] border-[#103010]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-[#e07010]"
+                      checked={checked}
+                      onChange={() => toggleBin(bin)}
+                    />
+                    <span>{bin}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <Text label="Preferred Date" type="date" value={form.date} onChange={(v) => update("date", v)} />
+          <div /> {/* spacer to align grid */}
+          <TextArea label="Notes (optional)" value={form.notes} onChange={(v) => update("notes", v)} className="md:col-span-2" />
         </form>
 
         {error && <div className="px-4 text-sm text-red-400">{error}</div>}
 
         <div className="p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010]">
-          <div className="text-xs text-[#f0e0b0]/80">
-            Submit via WhatsApp or Email.
-          </div>
+          <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp or Email.</div>
           <div className="flex gap-3">
-            <a
-              href={whatsappURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 rounded-2xl bg-[#306030] text-white font-bold hover:brightness-110"
+            <button
+              onClick={handleWhatsApp}
+              disabled={!isValid || sending}
+              className="px-4 py-2 rounded-2xl bg-[#306030] text-white font-bold hover:brightness-110 disabled:opacity-60"
             >
               Send on WhatsApp
-            </a>
+            </button>
             <button
               onClick={handleEmail}
-              disabled={sending}
+              disabled={!isValid || sending}
               className="px-4 py-2 rounded-2xl bg-[#e07010] text-black font-bold hover:brightness-110 disabled:opacity-60"
             >
               {sending ? "Sending..." : "Send by Email"}
@@ -450,6 +476,7 @@ function BookingModal({ onClose }) {
     </div>
   );
 }
+
 
 /* ---------------- UI Field Helpers ---------------- */
 function FieldShell({ label, children, className = "" }) {
