@@ -1,10 +1,8 @@
-// CommonJS Netlify Function (works without ESM flags)
-const { Resend } = require('resend');
+// Netlify Function: sendBookingEmail.js (no external deps)
+// Uses native fetch to call Resend's API.
+// Requires env var RESEND_API_KEY.
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Helper to build the plain-text email body
-function buildText(data) {
+function buildText(data = {}) {
   const {
     business = 'Bin Wash Guyz',
     name = '',
@@ -33,34 +31,36 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
-
-    // Use a verified sender. For testing, Resend allows this:
-    // 'onboarding@resend.dev'. Replace with your domain once verified.
-    const from = 'Bin Wash Guyz <onboarding@resend.dev>';
-
     const to = Array.isArray(data.to) ? data.to : [data.to || 'aabincleaning@gmail.com'];
 
-    const subject = `New Bin Cleaning Booking`;
-    const text = buildText(data);
-
-    const result = await resend.emails.send({
-      from,
+    const payload = {
+      // For testing, Resend allows this sender. Replace with your verified domain when ready.
+      from: 'Bin Wash Guyz <onboarding@resend.dev>',
       to,
-      subject,
-      text,
-      // if you collect a customer email, you can set reply_to here:
-      // reply_to: data.email || undefined,
+      subject: 'New Bin Cleaning Booking',
+      text: buildText(data),
+      // If you collect a customer email, you can add: reply_to: data.email
+    };
+
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true, id: result?.data?.id || null }),
-    };
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.error('Resend error:', errText);
+      return { statusCode: 500, body: JSON.stringify({ ok: false, error: errText }) };
+    }
+
+    const json = await resp.json();
+    return { statusCode: 200, body: JSON.stringify({ ok: true, id: json?.id || null }) };
   } catch (err) {
     console.error('sendBookingEmail error:', err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ ok: false, error: String(err) }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(err) }) };
   }
 };
