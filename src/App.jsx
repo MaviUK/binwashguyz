@@ -345,12 +345,13 @@ function MobileActionBar({ onBook }) {
   );
 }
 
+/* ---------------- Booking Modal (full) ---------------- */
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
     address: "",
     postcode: "",
-    bins: [],              // now an array (multi-select)
+    bins: [],          // multi-select
     date: "",
     notes: "",
   });
@@ -368,7 +369,6 @@ function BookingModal({ onClose }) {
   }
 
   function validate() {
-    // Require: name, address, postcode, date, at least 1 bin
     if (!form.name.trim() || !form.address.trim() || !form.postcode.trim() || !form.date) {
       setError("Please complete Name, Address, Postcode, and Date.");
       return false;
@@ -439,18 +439,23 @@ function BookingModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70">
-      <div className="w-full max-w-2xl rounded-2xl border border-[#306030] bg-[#001820] text-[#f0e0b0] shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-[#103010]">
+      {/* Scrollable container with sticky header/footer for mobile usability */}
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[#306030] bg-[#001820] text-[#f0e0b0] shadow-2xl">
+        {/* Sticky header */}
+        <div className="sticky top-0 flex items-center justify-between p-4 border-b border-[#103010] bg-[#001820]">
           <h3 className="font-extrabold text-white">Book a Clean</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl">✕</button>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl" aria-label="Close">
+            ✕
+          </button>
         </div>
 
+        {/* Form */}
         <form className="p-4 grid md:grid-cols-2 gap-4">
           <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
           <Text label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
           <Text label="Address" value={form.address} onChange={(v) => update("address", v)} className="md:col-span-2" />
 
-          {/* Multi-select bins (checkboxes) */}
+          {/* Multi-select bins as checkboxes */}
           <div className="md:col-span-2">
             <div className="text-xs mb-1 text-[#f0e0b0]/80">Bins</div>
             <div className="flex flex-wrap gap-2">
@@ -477,13 +482,15 @@ function BookingModal({ onClose }) {
           </div>
 
           <Text label="Preferred Date" type="date" value={form.date} onChange={(v) => update("date", v)} />
-          <div /> {/* spacer to align grid */}
+          <div /> {/* spacer for grid alignment */}
           <TextArea label="Notes (optional)" value={form.notes} onChange={(v) => update("notes", v)} className="md:col-span-2" />
         </form>
 
+        {/* Validation error */}
         {error && <div className="px-4 text-sm text-red-400">{error}</div>}
 
-        <div className="p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010]">
+        {/* Sticky footer actions */}
+        <div className="sticky bottom-0 p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010] bg-[#001820]">
           <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp or Email.</div>
           <div className="flex gap-3">
             <button
