@@ -111,8 +111,8 @@ function Sections() {
           <div className="mt-6 grid md:grid-cols-3 gap-6">
             {[
               { title: "Household Wheelie Bins", desc: "Standard clean, disinfect and deodorize for general waste, recycling and food bins." },
-              { title: "Regular Routes", desc: "Choose monthly or fortnightly visits synced to your council collection day." },
-              { title: "Commercial", desc: "Custom schedules for flats, shops and businesses. Volume pricing available." },
+              { title: "Regular Routes", desc: "All Cleans are on a Four Weekly Schedule, £6 per Bin" },
+              { title: "Day Your Bin is Emptied", desc: "All bins are cleaned on the day they are emptied, by your local council." },
             ].map((c) => (
               <div key={c.title} className="p-6 rounded-2xl bg-[#003040] text-[#f0e0b0] border border-[#103010] shadow">
                 <h3 className="font-bold text-white text-lg">{c.title}</h3>
