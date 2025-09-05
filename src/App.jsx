@@ -87,8 +87,7 @@ function Hero() {
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
           <p className="mt-4 text-lg text-[#f0e0b0]">
-            We deep-clean, sanitize and deodorize your household bins using
-            eco-friendly methods. No mess, no hassle — just spotless bins.
+            We provide a full deep clean of your household wheelie bins right at your doorstep, leaving them fresh, hygienic, and odour-free. Using eco-friendly cleaning methods and professional equipment, we remove built-up grime, germs, and unpleasant smells that ordinary rinsing can’t touch. After every visit, your bins are sanitised, deodorised, and safe to use — with no mess, no hassle, and no harmful chemicals left behind.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <a
