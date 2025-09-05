@@ -87,29 +87,46 @@ function Hero() {
             className="relative w-full max-w-md mx-auto drop-shadow-2xl"
           />
         </div>
+
         <div className="order-2 md:order-1">
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white">
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
-        <p className="mt-4 text-lg text-[#f0e0b0]">
-  We deep clean, sanitise, and deodorise your household wheelie bins right at
-  your doorstep throughout the{" "}
-  <span
-    className="text-orange-500 cursor-help"
-    title="Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18"
-  >
-    Belfast
-  </span>{" "}
-  area. Using eco-friendly methods and professional equipment, we
-  remove dirt, germs, and odours that simple rinsing can’t. The result is
-  spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.
-</p>
 
+          <p className="mt-4 text-lg text-[#f0e0b0]">
+            We deep clean, sanitise, and deodorise your household wheelie bins right at your
+            doorstep throughout{" "}
+            {/* Belfast with tooltip */}
+            <span className="relative inline-block group">
+              <span
+                className="underline decoration-dotted decoration-[#e07010] cursor-help focus:outline-none"
+                tabIndex={0}
+                aria-describedby="areas-tooltip"
+                title="Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18"
+              >
+                Belfast
+              </span>
+              {/* Tooltip */}
+              <span
+                role="tooltip"
+                id="areas-tooltip"
+                className="pointer-events-none absolute left-1/2 z-10 mt-2 w-max max-w-xs -translate-x-1/2 rounded-xl border border-[#103010] bg-[#001820] px-3 py-2 text-sm text-[#f0e0b0] shadow-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+              >
+                Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18
+                {/* little pointer */}
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 h-0 w-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-[#001820]" />
+              </span>
+            </span>
+            . Using eco-friendly methods and professional equipment, we remove dirt, germs, and
+            odours that simple rinsing can’t. The result is spotless, hygienic bins with no mess,
+            no hassle, and no harmful chemicals.
+          </p>
         </div>
       </div>
     </section>
   );
 }
+
 
 /* ---------------- Sections ---------------- */
 function Sections() {
