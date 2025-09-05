@@ -2,8 +2,8 @@ import { useState } from "react";
 
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
-const WHATSAPP_NUMBER = "+447555178484"; // change to your WhatsApp number (international format)
-const BOOKING_EMAIL = "aabincleaning@gmail.com"; // change if needed
+const WHATSAPP_NUMBER = "+447555178484"; // must be international format
+const BOOKING_EMAIL = "aabincleaning@gmail.com";
 // ==================================================
 
 export default function App() {
@@ -63,7 +63,9 @@ function Header({ onBook }) {
             <a href="#benefits" className="py-2 border-b border-white/5">Benefits</a>
             <a href="#why" className="py-2 border-b border-white/5">Why Us</a>
             <a href="#contact" className="py-2">Contact</a>
-            <button onClick={onBook} className="mt-2 px-4 py-2 rounded-2xl bg-[#e07010] text-black font-bold">Book Now</button>
+            <button onClick={onBook} className="mt-2 px-4 py-2 rounded-2xl bg-[#e07010] text-black font-bold">
+              Book Now
+            </button>
           </div>
         </div>
       )}
@@ -71,7 +73,7 @@ function Header({ onBook }) {
   );
 }
 
-function Hero({ onBook }: { onBook: () => void }) {
+function Hero({ onBook }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#003040] via-transparent to-transparent opacity-60" />
@@ -81,7 +83,8 @@ function Hero({ onBook }: { onBook: () => void }) {
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
           <p className="mt-4 text-lg text-[#f0e0b0]">
-            We deep-clean, sanitize and deodorize your household bins using eco‑friendly methods. No mess, no hassle — just spotless bins.
+            We deep-clean, sanitize and deodorize your household bins using
+            eco-friendly methods. No mess, no hassle — just spotless bins.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <button
@@ -99,7 +102,7 @@ function Hero({ onBook }: { onBook: () => void }) {
           </div>
           <ul className="mt-6 grid grid-cols-2 gap-4 max-w-md text-sm">
             {[
-              "Eco‑friendly detergents",
+              "Eco-friendly detergents",
               "Disinfect & deodorize",
               "Regular schedules",
               "Local & insured",
@@ -113,7 +116,11 @@ function Hero({ onBook }: { onBook: () => void }) {
         </div>
         <div className="relative">
           <div className="absolute -inset-6 bg-[#103010] blur-3xl opacity-40 rounded-full" />
-          <img src="/logo.png" alt="Bin Wash Guyz" className="relative w-full max-w-md mx-auto drop-shadow-2xl" />
+          <img
+            src="/logo.png"
+            alt="Bin Wash Guyz"
+            className="relative w-full max-w-md mx-auto drop-shadow-2xl"
+          />
         </div>
       </div>
     </section>
@@ -123,6 +130,7 @@ function Hero({ onBook }: { onBook: () => void }) {
 function Sections() {
   return (
     <>
+      {/* Services */}
       <section id="services" className="bg-[#001820] border-y border-[#103010]">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Services</h2>
@@ -130,21 +138,21 @@ function Sections() {
             {[
               {
                 title: "Household Wheelie Bins",
-                desc:
-                  "Standard clean, disinfect and deodorize for general waste, recycling and food bins.",
+                desc: "Standard clean, disinfect and deodorize for general waste, recycling and food bins.",
               },
               {
                 title: "Regular Routes",
-                desc:
-                  "Choose monthly or fortnightly visits synced to your council collection day.",
+                desc: "Choose monthly or fortnightly visits synced to your council collection day.",
               },
               {
                 title: "Commercial",
-                desc:
-                  "Custom schedules for flats, shops and businesses. Volume pricing available.",
+                desc: "Custom schedules for flats, shops and businesses. Volume pricing available.",
               },
             ].map((c) => (
-              <div key={c.title} className="p-6 rounded-2xl bg-[#003040] text-[#f0e0b0] border border-[#103010] shadow">
+              <div
+                key={c.title}
+                className="p-6 rounded-2xl bg-[#003040] text-[#f0e0b0] border border-[#103010] shadow"
+              >
                 <h3 className="font-bold text-white text-lg">{c.title}</h3>
                 <p className="mt-2 text-sm">{c.desc}</p>
               </div>
@@ -153,14 +161,15 @@ function Sections() {
         </div>
       </section>
 
-      <section id="benefits" className="">
-        <div className="max-w-6xl mx-auto px-4 py-14">
+      {/* Benefits */}
+      <section id="benefits">
+        <div className="max-w-6xl mx_auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why clean your bins?</h2>
           <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
             {[
               {
                 t: "Kills germs",
-                d: "Removes bacteria build‑up and harmful pathogens from bin surfaces.",
+                d: "Removes bacteria build-up and harmful pathogens from bin surfaces.",
               },
               {
                 t: "Odour control",
@@ -171,7 +180,10 @@ function Sections() {
                 d: "Discourages flies, maggots, foxes and rodents.",
               },
             ].map((b) => (
-              <div key={b.t} className="p-6 rounded-2xl bg-[#103010] text-[#f0e0b0] border border-[#306030]/40">
+              <div
+                key={b.t}
+                className="p-6 rounded-2xl bg-[#103010] text-[#f0e0b0] border border-[#306030]/40"
+              >
                 <div className="text-[#e07010] font-extrabold">{b.t}</div>
                 <p className="mt-2">{b.d}</p>
               </div>
@@ -180,6 +192,7 @@ function Sections() {
         </div>
       </section>
 
+      {/* Why us */}
       <section id="why" className="bg-[#001820] border-y border-[#103010]">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why {BUSINESS_NAME}?</h2>
@@ -207,10 +220,11 @@ function Sections() {
         </div>
       </section>
 
+      {/* Contact */}
       <section id="contact">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Contact</h2>
-          <p className="mt-3 text-[#f0e0b0]">WhatsApp: {WHATSAPP_NUMBER.replace("+", "+")}</p>
+          <p className="mt-3 text-[#f0e0b0]">WhatsApp: {WHATSAPP_NUMBER}</p>
           <p className="text-[#f0e0b0]">Email: {BOOKING_EMAIL}</p>
         </div>
       </section>
@@ -218,14 +232,17 @@ function Sections() {
   );
 }
 
-function CTA({ onBook }: { onBook: () => void }) {
+function CTA({ onBook }) {
   return (
     <section className="py-10 border-y border-[#103010] bg-[#003040]">
       <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
         <h3 className="text-2xl md:text-3xl font-extrabold text-white">
           Ready for fresh bins?
         </h3>
-        <button onClick={onBook} className="px-6 py-3 rounded-2xl bg-[#e07010] text-black font-extrabold shadow hover:brightness-110">
+        <button
+          onClick={onBook}
+          className="px-6 py-3 rounded-2xl bg-[#e07010] text-black font-extrabold shadow hover:brightness-110"
+        >
           Book via WhatsApp / Email
         </button>
       </div>
@@ -252,10 +269,18 @@ function MobileActionBar({ onBook }) {
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3">
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3"
+        >
           WhatsApp
         </a>
-        <button onClick={onBook} className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3">
+        <button
+          onClick={onBook}
+          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
+        >
           Book
         </button>
       </div>
@@ -289,8 +314,7 @@ function BookingModal({ onClose }) {
       form.date ? `Preferred date: ${form.date}` : null,
       form.notes ? `Notes: ${form.notes}` : null,
     ].filter(Boolean);
-    return parts.join("
-");
+    return parts.join("\n");
   }
 
   const whatsappURL = (() => {
@@ -314,11 +338,11 @@ function BookingModal({ onClose }) {
   }
 
   function handleWhatsApp(e) {
-    if (!validate()) { e.preventDefault(); }
+    if (!validate()) e.preventDefault();
   }
 
   function handleEmail(e) {
-    if (!validate()) { e.preventDefault(); }
+    if (!validate()) e.preventDefault();
   }
 
   return (
@@ -345,7 +369,9 @@ function BookingModal({ onClose }) {
         )}
 
         <div className="p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010]">
-          <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp (preferred) or Email. Netlify will also capture the form if enabled.</div>
+          <div className="text-xs text-[#f0e0b0]/80">
+            Submit via WhatsApp (preferred) or Email. Netlify will also capture the form if enabled.
+          </div>
           <div className="flex gap-3">
             <a
               onClick={handleWhatsApp}
