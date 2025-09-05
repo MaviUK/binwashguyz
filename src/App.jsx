@@ -4,7 +4,7 @@ import { useState } from "react";
 const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447555178484"; // international format
 const BOOKING_EMAIL = "aabincleaning@gmail.com"; // email for enquiries
-const PHONE_NUMBER = "+447555178484"; // phone number
+const PHONE_NUMBER = "+447555178484"; // business phone number
 // ==================================================
 
 export default function App() {
@@ -30,10 +30,11 @@ function Header({ onBook }) {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="logo" className="w-12 h-12 rounded" />
-          <div className="font-extrabold tracking-wide text-xl text-[#f0e0b0]">
-            {BUSINESS_NAME}
-          </div>
         </div>
+        <div className="font-extrabold tracking-wide text-xl text-[#f0e0b0]">
+          {BUSINESS_NAME}
+        </div>
+
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <a href="#services" className="hover:text-white">Services</a>
           <a href="#benefits" className="hover:text-white">Benefits</a>
@@ -46,6 +47,7 @@ function Header({ onBook }) {
             Book
           </button>
         </nav>
+
         <button
           className="md:hidden p-2 rounded-xl border border-[#103010] text-[#f0e0b0]"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -54,6 +56,7 @@ function Header({ onBook }) {
           ☰
         </button>
       </div>
+
       {menuOpen && (
         <div className="md:hidden border-t border-[#103010] bg-[#001820]">
           <div className="max-w-6xl mx-auto px-4 py-3 grid gap-3 text-sm">
@@ -87,9 +90,11 @@ function Hero() {
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
           <p className="mt-4 text-lg text-[#f0e0b0]">
-          We deep clean, sanitise, and deodorise your household wheelie bins right at your doorstep. Using eco-friendly methods and professional equipment, we remove dirt, germs, and odours that simple rinsing can’t. The result is spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.</p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-          </div>
+            We deep clean, sanitise, and deodorise your household wheelie bins right at
+            your doorstep. Using eco-friendly methods and professional equipment, we
+            remove dirt, germs, and odours that simple rinsing can’t. The result is
+            spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.
+          </p>
         </div>
       </div>
     </section>
@@ -169,9 +174,9 @@ function Sections() {
   );
 }
 
-/* ---------------- Contact ---------------- */
+/* ---------------- Contact (updated fields) ---------------- */
 function Contact() {
-  const [f, setF] = useState({ name: "", contact: "", message: "" });
+  const [f, setF] = useState({ name: "", email: "", phone: "", message: "" });
   const [copied, setCopied] = useState(false);
 
   const isMobile =
@@ -181,7 +186,8 @@ function Contact() {
   const encoded = encodeURIComponent(
     `Enquiry for ${BUSINESS_NAME}\n\n` +
       `Name: ${f.name}\n` +
-      `Contact: ${f.contact}\n` +
+      `Email: ${f.email}\n` +
+      `Phone: ${f.phone}\n` +
       `Message: ${f.message}`
   );
 
@@ -204,29 +210,50 @@ function Contact() {
         <h2 className="text-3xl font-extrabold text-white">Contact</h2>
 
         <div className="mt-6 grid md:grid-cols-3 gap-4">
-          <Text label="Your Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
-          <Text label="Your Contact" value={f.contact} onChange={(v) => setF({ ...f, contact: v })} />
-          <TextArea label="Message" value={f.message} onChange={(v) => setF({ ...f, message: v })} className="md:col-span-3" />
+          <Text label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
+          <Text label="Email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
+          <Text label="Phone No" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
+          <TextArea
+            label="Message"
+            value={f.message}
+            onChange={(v) => setF({ ...f, message: v })}
+            className="md:col-span-3"
+          />
         </div>
 
         <div className="mt-6 grid sm:grid-cols-3 gap-3">
-          <a href={whatsappURL} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110">
+          {/* WhatsApp - Green */}
+          <a
+            href={whatsappURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110"
+          >
             WhatsApp
           </a>
-          <a href={mailtoURL}
-            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-black bg-[#e07010] hover:brightness-110">
+
+          {/* Email - Orange */}
+          <a
+            href={mailtoURL}
+            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-black bg-[#e07010] hover:brightness-110"
+          >
             Email
           </a>
+
+          {/* Phone - Blue (dial on mobile, show/copy on desktop) */}
           {isMobile ? (
-            <a href={`tel:${PHONE_NUMBER.replace("+", "")}`}
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110">
+            <a
+              href={`tel:${PHONE_NUMBER.replace("+", "")}`}
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
+            >
               Phone
             </a>
           ) : (
-            <button onClick={copyPhone}
+            <button
+              onClick={copyPhone}
               className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
-              title={PHONE_NUMBER}>
+              title={PHONE_NUMBER}
+            >
               {copied ? "Copied!" : `Phone: ${PHONE_NUMBER}`}
             </button>
           )}
@@ -267,12 +294,18 @@ function MobileActionBar({ onBook }) {
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
-        <a href={wa} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3">
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3"
+        >
           WhatsApp
         </a>
-        <button onClick={onBook}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3">
+        <button
+          onClick={onBook}
+          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
+        >
           Book
         </button>
       </div>
@@ -282,38 +315,68 @@ function MobileActionBar({ onBook }) {
 
 /* ---------------- Booking Modal ---------------- */
 function BookingModal({ onClose }) {
-  const [form, setForm] = useState({ name: "", address: "", postcode: "", bins: "Household", date: "", notes: "" });
+  const [form, setForm] = useState({
+    name: "",
+    address: "",
+    postcode: "",
+    bins: "Household",
+    date: "",
+    notes: "",
+  });
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
 
-  function update(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+  function update(k, v) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
   function validate() {
     if (!form.name || !form.address || !form.postcode) {
-      setError("Please fill in Name, Address and Postcode."); return false;
+      setError("Please fill in Name, Address and Postcode.");
+      return false;
     }
-    setError(""); return true;
+    setError("");
+    return true;
   }
   function buildMessage() {
     return [
       `New bin clean request for ${BUSINESS_NAME}:`,
-      `Name: ${form.name}`, `Address: ${form.address}`, `Postcode: ${form.postcode}`,
-      `Bins: ${form.bins}`, form.date ? `Preferred date: ${form.date}` : null, form.notes ? `Notes: ${form.notes}` : null,
-    ].filter(Boolean).join("\n");
+      `Name: ${form.name}`,
+      `Address: ${form.address}`,
+      `Postcode: ${form.postcode}`,
+      `Bins: ${form.bins}`,
+      form.date ? `Preferred date: ${form.date}` : null,
+      form.notes ? `Notes: ${form.notes}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
   }
-  const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${encodeURIComponent(buildMessage())}`;
+  const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace(
+    "+",
+    ""
+  )}?text=${encodeURIComponent(buildMessage())}`;
+
   async function handleEmail(e) {
-    e.preventDefault(); if (!validate()) return;
+    e.preventDefault();
+    if (!validate()) return;
     try {
       setSending(true);
       const res = await fetch("/.netlify/functions/sendBookingEmail", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business: BUSINESS_NAME, to: BOOKING_EMAIL, ...form }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          business: BUSINESS_NAME,
+          to: BOOKING_EMAIL,
+          ...form,
+        }),
       });
       if (!res.ok) throw new Error("Failed to send");
-      alert("Booking email sent!"); onClose();
+      alert("Booking email sent!");
+      onClose();
     } catch (err) {
       alert("Error sending email. Please try again.");
-    } finally { setSending(false); }
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -321,22 +384,56 @@ function BookingModal({ onClose }) {
       <div className="w-full max-w-2xl rounded-2xl border border-[#306030] bg-[#001820] text-[#f0e0b0] shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-[#103010]">
           <h3 className="font-extrabold text-white">Book a Clean</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl">✕</button>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl">
+            ✕
+          </button>
         </div>
+
         <form className="p-4 grid md:grid-cols-2 gap-4">
-          <Text label="Name" value={form.name} onChange={(v)=>update("name", v)} />
-          <Text label="Postcode" value={form.postcode} onChange={(v)=>update("postcode", v)} />
-          <Text label="Address" value={form.address} onChange={(v)=>update("address", v)} className="md:col-span-2" />
-          <Select label="Bins" value={form.bins} onChange={(v)=>update("bins", v)} options={["Household","Recycling","Food","All"]} />
-          <Text label="Preferred Date" type="date" value={form.date} onChange={(v)=>update("date", v)} />
-          <TextArea label="Notes" value={form.notes} onChange={(v)=>update("notes", v)} className="md:col-span-2" />
+          <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
+          <Text
+            label="Postcode"
+            value={form.postcode}
+            onChange={(v) => update("postcode", v)}
+          />
+          <Text
+            label="Address"
+            value={form.address}
+            onChange={(v) => update("address", v)}
+            className="md:col-span-2"
+          />
+          <Select
+            label="Bins"
+            value={form.bins}
+            onChange={(v) => update("bins", v)}
+            options={["Household", "Recycling", "Food", "All"]}
+          />
+          <Text
+            label="Preferred Date"
+            type="date"
+            value={form.date}
+            onChange={(v) => update("date", v)}
+          />
+          <TextArea
+            label="Notes"
+            value={form.notes}
+            onChange={(v) => update("notes", v)}
+            className="md:col-span-2"
+          />
         </form>
+
         {error && <div className="px-4 text-sm text-red-400">{error}</div>}
+
         <div className="p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010]">
-          <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp or Email.</div>
+          <div className="text-xs text-[#f0e0b0]/80">
+            Submit via WhatsApp or Email.
+          </div>
           <div className="flex gap-3">
-            <a href={whatsappURL} target="_blank" rel="noopener noreferrer"
-                            className="px-4 py-2 rounded-2xl bg-[#306030] text-white font-bold hover:brightness-110"
+            <a
+              href={whatsappURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-2xl bg-[#306030] text-white font-bold hover:brightness-110"
             >
               Send on WhatsApp
             </a>
@@ -401,7 +498,9 @@ function Select({ label, value, onChange, options, className = "" }) {
         className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white focus:outline-none"
       >
         {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+          <option key={o} value={o}>
+            {o}
+          </option>
         ))}
       </select>
     </FieldShell>
