@@ -2,28 +2,30 @@ import { useState } from "react";
 
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
-const WHATSAPP_NUMBER = "+447555178484"; // change to your WhatsApp number (international format)
-const BOOKING_EMAIL = "aabincleaning@gmail.com"; // change if needed
+const WHATSAPP_NUMBER = "+447555178484"; // must be international format
+const BOOKING_EMAIL = "aabincleaning@gmail.com"; // still used in contact section if needed
 // ==================================================
 
 export default function App() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); // Modal still available if you re-add a trigger later
   return (
     <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
-      <Header onBook={() => setOpen(true)} />
-      <Hero onBook={() => setOpen(true)} />
+      <Header />
+      <Hero />
       <Sections />
-      <CTA onBook={() => setOpen(true)} />
+      <CTA />
       <Footer />
-      {/* Mobile quick actions bar */}
-      <MobileActionBar onBook={() => setOpen(true)} />
+      {/* Mobile quick actions bar (WhatsApp only) */}
+      <MobileActionBar />
+      {/* Modal remains in codebase, but no visible trigger since buttons were removed */}
       {open && <BookingModal onClose={() => setOpen(false)} />}
     </div>
   );
 }
 
-function Header({ onBook }) {
+function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 bg-[#000000]/70 backdrop-blur border-b border-[#103010]">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -33,22 +35,26 @@ function Header({ onBook }) {
             {BUSINESS_NAME}
           </div>
         </div>
+
+        {/* Desktop nav (no Book button) */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <a href="#services" className="hover:text-white">Services</a>
           <a href="#benefits" className="hover:text-white">Benefits</a>
           <a href="#why" className="hover:text-white">Why Us</a>
           <a href="#contact" className="hover:text-white">Contact</a>
         </nav>
-          <button
-            className="md:hidden p-2 rounded-xl border border-[#103010] text-[#f0e0b0]"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            ☰
-          </button>
-        </div>
+
+        {/* Mobile menu toggle */}
+        <button
+          className="md:hidden p-2 rounded-xl border border-[#103010] text-[#f0e0b0]"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          ☰
+        </button>
       </div>
-      {/* Mobile dropdown */}
+
+      {/* Mobile dropdown (no Book button) */}
       {menuOpen && (
         <div className="md:hidden border-t border-[#103010] bg-[#001820]">
           <div className="max-w-6xl mx-auto px-4 py-3 grid gap-3 text-sm">
@@ -63,11 +69,21 @@ function Header({ onBook }) {
   );
 }
 
-function Hero({ onBook }: { onBook: () => void }) {
+function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#003040] via-transparent to-transparent opacity-60" />
       <div className="max-w-6xl mx-auto px-4 pt-16 pb-12 grid md:grid-cols-2 gap-10 items-center">
+        {/* Image first on mobile; text first on desktop */}
+        <div className="relative order-1 md:order-2">
+          <div className="absolute -inset-6 bg-[#103010] blur-3xl opacity-40 rounded-full" />
+          <img
+            src="/logo.png"
+            alt="Bin Wash Guyz"
+            className="relative w-full max-w-md mx-auto drop-shadow-2xl"
+          />
+        </div>
+
         <div className="order-2 md:order-1">
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white">
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
@@ -76,8 +92,9 @@ function Hero({ onBook }: { onBook: () => void }) {
             We deep-clean, sanitize and deodorize your household bins using
             eco-friendly methods. No mess, no hassle — just spotless bins.
           </p>
+
+          {/* Primary Book button removed; keep secondary link only on >= sm */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            {/* Book button removed on request */}
             <a
               href="#services"
               className="hidden sm:inline-flex px-5 py-3 rounded-2xl border border-[#306030] text-[#f0e0b0] hover:bg-[#103010]"
@@ -85,6 +102,7 @@ function Hero({ onBook }: { onBook: () => void }) {
               See Services
             </a>
           </div>
+
           <ul className="mt-6 grid grid-cols-2 gap-4 max-w-md text-sm">
             {[
               "Eco-friendly detergents",
@@ -99,10 +117,6 @@ function Hero({ onBook }: { onBook: () => void }) {
             ))}
           </ul>
         </div>
-        <div className="relative order-1 md:order-2">
-          <div className="absolute -inset-6 bg-[#103010] blur-3xl opacity-40 rounded-full" />
-          <img src="/logo.png" alt="Bin Wash Guyz" className="relative w-full max-w-md mx-auto drop-shadow-2xl" />
-        </div>
       </div>
     </section>
   );
@@ -111,6 +125,7 @@ function Hero({ onBook }: { onBook: () => void }) {
 function Sections() {
   return (
     <>
+      {/* Services */}
       <section id="services" className="bg-[#001820] border-y border-[#103010]">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Services</h2>
@@ -118,21 +133,21 @@ function Sections() {
             {[
               {
                 title: "Household Wheelie Bins",
-                desc:
-                  "Standard clean, disinfect and deodorize for general waste, recycling and food bins.",
+                desc: "Standard clean, disinfect and deodorize for general waste, recycling and food bins.",
               },
               {
                 title: "Regular Routes",
-                desc:
-                  "Choose monthly or fortnightly visits synced to your council collection day.",
+                desc: "Choose monthly or fortnightly visits synced to your council collection day.",
               },
               {
                 title: "Commercial",
-                desc:
-                  "Custom schedules for flats, shops and businesses. Volume pricing available.",
+                desc: "Custom schedules for flats, shops and businesses. Volume pricing available.",
               },
             ].map((c) => (
-              <div key={c.title} className="p-6 rounded-2xl bg-[#003040] text-[#f0e0b0] border border-[#103010] shadow">
+              <div
+                key={c.title}
+                className="p-6 rounded-2xl bg-[#003040] text-[#f0e0b0] border border-[#103010] shadow"
+              >
                 <h3 className="font-bold text-white text-lg">{c.title}</h3>
                 <p className="mt-2 text-sm">{c.desc}</p>
               </div>
@@ -141,14 +156,15 @@ function Sections() {
         </div>
       </section>
 
-      <section id="benefits" className="">
+      {/* Benefits */}
+      <section id="benefits">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why clean your bins?</h2>
           <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
             {[
               {
                 t: "Kills germs",
-                d: "Removes bacteria build‑up and harmful pathogens from bin surfaces.",
+                d: "Removes bacteria build-up and harmful pathogens from bin surfaces.",
               },
               {
                 t: "Odour control",
@@ -159,7 +175,10 @@ function Sections() {
                 d: "Discourages flies, maggots, foxes and rodents.",
               },
             ].map((b) => (
-              <div key={b.t} className="p-6 rounded-2xl bg-[#103010] text-[#f0e0b0] border border-[#306030]/40">
+              <div
+                key={b.t}
+                className="p-6 rounded-2xl bg-[#103010] text-[#f0e0b0] border border-[#306030]/40"
+              >
                 <div className="text-[#e07010] font-extrabold">{b.t}</div>
                 <p className="mt-2">{b.d}</p>
               </div>
@@ -168,10 +187,11 @@ function Sections() {
         </div>
       </section>
 
+      {/* Why us */}
       <section id="why" className="bg-[#001820] border-y border-[#103010]">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why {BUSINESS_NAME}?</h2>
-          <div className="mt-6 grid md:grid-cols-2 gap-6 items-center">
+        <div className="mt-6 grid md:grid-cols-2 gap-6 items-center">
             <ul className="space-y-3 text-[#f0e0b0]">
               {[
                 "Professional equipment & detergents",
@@ -195,10 +215,11 @@ function Sections() {
         </div>
       </section>
 
+      {/* Contact */}
       <section id="contact">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Contact</h2>
-          <p className="mt-3 text-[#f0e0b0]">WhatsApp: {WHATSAPP_NUMBER.replace("+", "+")}</p>
+          <p className="mt-3 text-[#f0e0b0]">WhatsApp: {WHATSAPP_NUMBER}</p>
           <p className="text-[#f0e0b0]">Email: {BOOKING_EMAIL}</p>
         </div>
       </section>
@@ -206,7 +227,7 @@ function Sections() {
   );
 }
 
-function CTA({ onBook }) {
+function CTA() {
   return (
     <section className="py-10 border-y border-[#103010] bg-[#003040]">
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between gap-6">
@@ -229,8 +250,8 @@ function Footer() {
   );
 }
 
-// Mobile fixed bottom bar for small screens
-function MobileActionBar({ onBook }) {
+// Mobile fixed bottom bar for small screens (WhatsApp only)
+function MobileActionBar() {
   const minimalMsg = encodeURIComponent(
     `Hi, I'd like to book a bin clean with ${BUSINESS_NAME}.`
   );
@@ -238,16 +259,21 @@ function MobileActionBar({ onBook }) {
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 py-3">
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="block text-center rounded-2xl bg-[#306030] text-white font-bold py-3">
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-center rounded-2xl bg-[#306030] text-white font-bold py-3"
+        >
           WhatsApp
         </a>
       </div>
     </div>
-  </div>
   );
 }
 
 // ---------------- BOOKING MODAL ------------------
+// (kept in codebase in case you want to re-enable a Book button later)
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
@@ -273,8 +299,7 @@ function BookingModal({ onClose }) {
       form.date ? `Preferred date: ${form.date}` : null,
       form.notes ? `Notes: ${form.notes}` : null,
     ].filter(Boolean);
-    return parts.join("
-");
+    return parts.join("\n");
   }
 
   const whatsappURL = (() => {
@@ -298,11 +323,11 @@ function BookingModal({ onClose }) {
   }
 
   function handleWhatsApp(e) {
-    if (!validate()) { e.preventDefault(); }
+    if (!validate()) e.preventDefault();
   }
 
   function handleEmail(e) {
-    if (!validate()) { e.preventDefault(); }
+    if (!validate()) e.preventDefault();
   }
 
   return (
@@ -329,7 +354,9 @@ function BookingModal({ onClose }) {
         )}
 
         <div className="p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010]">
-          <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp (preferred) or Email. Netlify will also capture the form if enabled.</div>
+          <div className="text-xs text-[#f0e0b0]/80">
+            Submit via WhatsApp (preferred) or Email. Netlify will also capture the form if enabled.
+          </div>
           <div className="flex gap-3">
             <a
               onClick={handleWhatsApp}
