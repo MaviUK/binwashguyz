@@ -10,7 +10,7 @@ export default function App() {
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
-      <Header />
+      <Header onBook={() => setOpen(true)} />
       <Hero />
       <Sections />
       <CTA />
@@ -22,7 +22,7 @@ export default function App() {
   );
 }
 
-function Header() {
+function Header({ onBook }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -35,12 +35,19 @@ function Header() {
           </div>
         </div>
 
-        {/* Desktop nav (no Book button) */}
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <a href="#services" className="hover:text-white">Services</a>
           <a href="#benefits" className="hover:text-white">Benefits</a>
           <a href="#why" className="hover:text-white">Why Us</a>
           <a href="#contact" className="hover:text-white">Contact</a>
+          {/* Desktop Book button */}
+          <button
+            onClick={onBook}
+            className="ml-2 px-4 py-2 rounded-2xl bg-[#e07010] text-black font-bold shadow hover:brightness-110"
+          >
+            Book
+          </button>
         </nav>
 
         {/* Mobile menu toggle */}
@@ -92,7 +99,7 @@ function Hero() {
             eco-friendly methods. No mess, no hassle — just spotless bins.
           </p>
 
-          {/* Primary Book removed; keep secondary link only on >= sm */}
+          {/* Primary Book removed; keep secondary link only on ≥ sm */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <a
               href="#services"
@@ -224,7 +231,6 @@ function CTA() {
         <h3 className="text-2xl md:text-3xl font-extrabold text-white">
           Ready for fresh bins?
         </h3>
-        {/* Booking button removed on request */}
       </div>
     </section>
   );
