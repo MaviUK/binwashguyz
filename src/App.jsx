@@ -150,8 +150,8 @@ function Sections() {
             <ul className="space-y-3 text-[#f0e0b0]">
               {[
                 "Professional equipment & detergents",
-                "Local, friendly service",
-                "Text reminders before each visit",
+                "Efficient, local, friendly service",
+                "Reliable, cleaned on the day the bins are emptied",
                 "Simple booking over WhatsApp or email",
               ].map((i) => (
                 <li key={i} className="flex items-start gap-3">
