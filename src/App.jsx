@@ -96,13 +96,12 @@ function Hero() {
           <p className="mt-4 text-lg text-[#f0e0b0]">
             We deep clean, sanitise, and deodorise your household wheelie bins right at your
             doorstep throughout{" "}
-            {/* Belfast with tooltip */}
+            {/* Belfast with tooltip + orange colour */}
             <span className="relative inline-block group">
               <span
-                className="underline decoration-dotted decoration-[#e07010] cursor-help focus:outline-none"
+                className="text-[#e07010] font-bold underline decoration-dotted cursor-help focus:outline-none"
                 tabIndex={0}
                 aria-describedby="areas-tooltip"
-                title="Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18"
               >
                 Belfast
               </span>
@@ -126,6 +125,7 @@ function Hero() {
     </section>
   );
 }
+
 
 
 /* ---------------- Sections ---------------- */
