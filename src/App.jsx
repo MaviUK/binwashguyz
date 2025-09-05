@@ -2,9 +2,9 @@ import { useState } from "react";
 
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
-const WHATSAPP_NUMBER = "+447555178484"; // international format
-const BOOKING_EMAIL = "aabincleaning@gmail.com"; // email for enquiries
-const PHONE_NUMBER = "+447555178484"; // business phone number
+const WHATSAPP_NUMBER = "+447533247375"; // international format
+const BOOKING_EMAIL = "info@binwashguyz.co.uk"; // email for enquiries
+const PHONE_NUMBER = "07533247375"; // business phone number
 const BIN_OPTIONS = ["Household", "Recycling", "Food"];
 
 // ==================================================
