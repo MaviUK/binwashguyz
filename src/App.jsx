@@ -93,7 +93,7 @@ function Hero() {
           </h1>
         <p className="mt-4 text-lg text-[#f0e0b0]">
   We deep clean, sanitise, and deodorise your household wheelie bins right at
-  your doorstep Throughout the{" "}
+  your doorstep throughout the{" "}
   <span
     className="text-orange-500 cursor-help"
     title="Areas We Cover: BT4, BT5, BT6, BT8, BT16, BT18"
