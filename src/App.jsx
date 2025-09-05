@@ -87,15 +87,8 @@ function Hero() {
             Fresh, Sanitized <span className="text-[#e07010]">Wheelie Bins</span>
           </h1>
           <p className="mt-4 text-lg text-[#f0e0b0]">
-            We provide a full deep clean of your household wheelie bins right at your doorstep, leaving them fresh, hygienic, and odour-free. Using eco-friendly cleaning methods and professional equipment, we remove built-up grime, germs, and unpleasant smells that ordinary rinsing can’t touch. After every visit, your bins are sanitised, deodorised, and safe to use — with no mess, no hassle, and no harmful chemicals left behind.
-          </p>
+          We deep clean, sanitise, and deodorise your household wheelie bins right at your doorstep. Using eco-friendly methods and professional equipment, we remove dirt, germs, and odours that simple rinsing can’t. The result is spotless, hygienic bins with no mess, no hassle, and no harmful chemicals.</p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <a
-              href="#services"
-              className="hidden sm:inline-flex px-5 py-3 rounded-2xl border border-[#306030] text-[#f0e0b0] hover:bg-[#103010]"
-            >
-              See Services
-            </a>
           </div>
         </div>
       </div>
