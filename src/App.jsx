@@ -374,28 +374,29 @@ function MobileActionBar({ onBook }) {
 
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-3 gap-3 items-center">
-        {/* WhatsApp (left) */}
+      {/* 1fr / auto / 1fr keeps the middle icon tight while side buttons fill */}
+      <div className="max-w-6xl mx-auto px-2 py-2 grid grid-cols-[1fr_auto_1fr] gap-1 items-center">
+        {/* WhatsApp — LARGE */}
         <a
           href={wa}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3"
+          className="inline-flex items-center justify-center w-full h-14 rounded-2xl bg-[#306030] text-white font-bold text-base tracking-wide shadow hover:brightness-110 active:scale-[0.99] transition"
         >
           WhatsApp
         </a>
 
-        {/* Phone (center, blue round icon button) */}
+        {/* Phone — compact blue round icon */}
         <a
           href={tel}
           aria-label={`Call ${PHONE_NUMBER}`}
           title={`Call ${PHONE_NUMBER}`}
-          className="mx-auto w-12 h-12 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow hover:brightness-110 active:scale-95 transition"
+          className="mx-1 w-14 h-14 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition"
         >
           {/* Phone icon (inline SVG) */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
+            className="w-7 h-7"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -409,10 +410,10 @@ function MobileActionBar({ onBook }) {
           </svg>
         </a>
 
-        {/* Book (right) */}
+        {/* Book — LARGE */}
         <button
           onClick={onBook}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
+          className="inline-flex items-center justify-center w-full h-14 rounded-2xl bg-[#e07010] text-black font-extrabold text-base tracking-wide shadow hover:brightness-110 active:scale-[0.99] transition"
         >
           Book
         </button>
