@@ -126,8 +126,6 @@ function Hero() {
   );
 }
 
-
-
 /* ---------------- Sections ---------------- */
 function Sections() {
   return (
@@ -153,7 +151,7 @@ function Sections() {
       <section id="benefits">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why clean your bins?</h2>
-          <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
+        <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
             {[
               { t: "Kills germs", d: "Removes bacteria build-up and harmful pathogens." },
               { t: "Odour control", d: "Deodorizes and leaves a fresh scent, even in hot weather." },
@@ -201,15 +199,20 @@ function Sections() {
   );
 }
 
-/* ---------------- Contact (sends via Resend) ---------------- */
+/* ---------------- Contact (all fields required; WA gated) ---------------- */
 function Contact() {
   const [f, setF] = useState({ name: "", email: "", phone: "", message: "" });
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   const isMobile =
     typeof navigator !== "undefined" &&
     /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // Require ALL fields
+  const canSend =
+    f.name.trim() && f.email.trim() && f.phone.trim() && f.message.trim();
 
   const encoded = encodeURIComponent(
     `Enquiry for ${BUSINESS_NAME}\n\n` +
@@ -229,26 +232,31 @@ function Contact() {
     }
   }
 
-  const canSend = f.name.trim() && (f.email.trim() || f.phone.trim()) && f.message.trim();
-
   async function handleSend(e) {
     e.preventDefault();
-    if (!canSend) return;
+    if (!canSend) {
+      setError("Please fill Name, Email, Phone and Message.");
+      return;
+    }
     try {
       setSending(true);
+      setError("");
       const res = await fetch("/.netlify/functions/sendContactEmail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           business: BUSINESS_NAME,
-          to: BOOKING_EMAIL,         // where you receive contact messages
+          to: BOOKING_EMAIL,
           name: f.name,
           email: f.email,
           phone: f.phone,
           message: f.message,
         }),
       });
-      if (!res.ok) throw new Error("Failed to send");
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to send");
+      }
       alert("Thanks! Your message has been sent.");
       setF({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
@@ -258,32 +266,42 @@ function Contact() {
     }
   }
 
+  function handleWhatsApp(e) {
+    e.preventDefault();
+    if (!canSend) {
+      setError("Please fill Name, Email, Phone and Message.");
+      return;
+    }
+    window.open(whatsappURL, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <section id="contact" className="bg-[#000910]">
       <div className="max-w-6xl mx-auto px-4 py-14">
         <h2 className="text-3xl font-extrabold text-white">Contact</h2>
 
+        {error && (
+          <div className="mt-3 text-sm text-red-400" role="alert">
+            {error}
+          </div>
+        )}
+
         <form className="mt-6 grid md:grid-cols-3 gap-4" onSubmit={handleSend}>
-          <Text label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
-          <Text label="Email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
-          <Text label="Phone No" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
-          <TextArea
-            label="Message"
-            value={f.message}
-            onChange={(v) => setF({ ...f, message: v })}
-            className="md:col-span-3"
-          />
+          <Text required label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
+          <Text required label="Email" type="email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
+          <Text required label="Phone No" type="tel" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
+          <TextArea required label="Message" value={f.message} onChange={(v) => setF({ ...f, message: v })} className="md:col-span-3" />
 
           <div className="md:col-span-3 mt-2 grid sm:grid-cols-3 gap-3">
-            {/* WhatsApp */}
-            <a
-              href={whatsappURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110"
+            {/* WhatsApp (gated & disabled) */}
+            <button
+              type="button"
+              onClick={handleWhatsApp}
+              disabled={!canSend || sending}
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110 disabled:opacity-60"
             >
               WhatsApp
-            </a>
+            </button>
 
             {/* Send via Resend */}
             <button
@@ -319,7 +337,6 @@ function Contact() {
   );
 }
 
-
 /* ---------------- CTA ---------------- */
 function CTA() {
   return (
@@ -337,12 +354,12 @@ function CTA() {
 function Footer() {
   return (
     <footer className="py-10 text-center text-xs text-[#f0e0b0]/80">
-     <div>
-  © {new Date().getFullYear()} {BUSINESS_NAME}. Built By{" "}
-  <a href="https://nibing.uy" target="_blank" rel="noopener noreferrer">
-    Ni Bin Guy
-  </a>
-</div>
+      <div>
+        © {new Date().getFullYear()} {BUSINESS_NAME}. Built By{" "}
+        <a href="https://nibing.uy" target="_blank" rel="noopener noreferrer">
+          Ni Bin Guy
+        </a>
+      </div>
     </footer>
   );
 }
@@ -350,7 +367,7 @@ function Footer() {
 /* ---------------- Mobile Action Bar ---------------- */
 function MobileActionBar({ onBook }) {
   const minimalMsg = encodeURIComponent(
-    `Hi, I'd like to make an equiry with ${BUSINESS_NAME}.`
+    `Hi, I'd like to make an enquiry with ${BUSINESS_NAME}.`
   );
   const wa = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${minimalMsg}`;
   return (
@@ -379,8 +396,8 @@ function MobileActionBar({ onBook }) {
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
-    email: "",      // NEW
-    phone: "",      // NEW
+    email: "",
+    phone: "",
     address: "",
     postcode: "",
     bins: [],       // multi-select
@@ -500,8 +517,8 @@ function BookingModal({ onClose }) {
 
         {/* Form */}
         <form className="p-4 grid md:grid-cols-2 gap-4">
-          <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
-          <Text label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
+          <Text required label="Name" value={form.name} onChange={(v) => update("name", v)} />
+          <Text required label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
 
           <Text
             label="Email"
@@ -517,6 +534,7 @@ function BookingModal({ onClose }) {
           />
 
           <Text
+            required
             label="Address"
             value={form.address}
             onChange={(v) => update("address", v)}
@@ -550,6 +568,7 @@ function BookingModal({ onClose }) {
           </div>
 
           <Text
+            required
             label="Preferred Date"
             type="date"
             value={form.date}
@@ -599,8 +618,6 @@ function BookingModal({ onClose }) {
   );
 }
 
-
-
 /* ---------------- UI Field Helpers ---------------- */
 function FieldShell({ label, children, className = "" }) {
   return (
@@ -611,13 +628,14 @@ function FieldShell({ label, children, className = "" }) {
   );
 }
 
-function Text({ label, value, onChange, type = "text", className = "" }) {
+function Text({ label, value, onChange, type = "text", required = false, className = "" }) {
   return (
     <FieldShell label={label} className={className}>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        required={required}
         className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
         placeholder={label}
       />
@@ -625,13 +643,14 @@ function Text({ label, value, onChange, type = "text", className = "" }) {
   );
 }
 
-function TextArea({ label, value, onChange, className = "" }) {
+function TextArea({ label, value, onChange, required = false, className = "" }) {
   return (
     <FieldShell label={label} className={className}>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
+        required={required}
         className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
         placeholder={label}
       />
