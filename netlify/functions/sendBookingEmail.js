@@ -31,7 +31,7 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
-    const to = Array.isArray(data.to) ? data.to : [data.to || 'aabincleaning@gmail.com'];
+    const to = Array.isArray(data.to) ? data.to : [data.to || 'binwashguyz@gmail.com'];
 
     const payload = {
       // For testing, Resend allows this sender. Replace with your verified domain when ready.
