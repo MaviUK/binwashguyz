@@ -31,15 +31,15 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
+    // Hardcoded default to your new inbox
     const to = Array.isArray(data.to) ? data.to : [data.to || 'binwashguyz@gmail.com'];
 
     const payload = {
-      // For testing, Resend allows this sender. Replace with your verified domain when ready.
-      from: 'Bin Wash Guyz <onboarding@resend.dev>',
+      from: 'Bin Wash Guyz <onboarding@resend.dev>', // swap to your verified domain when ready
       to,
       subject: 'New Bin Cleaning Booking',
       text: buildText(data),
-      // If you collect a customer email, you can add: reply_to: data.email
+      // reply_to: data.email, // if you collect customer email and want replies there
     };
 
     const resp = await fetch('https://api.resend.com/emails', {
