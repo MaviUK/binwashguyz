@@ -320,7 +320,7 @@ function Footer() {
 /* ---------------- Mobile Action Bar ---------------- */
 function MobileActionBar({ onBook }) {
   const minimalMsg = encodeURIComponent(
-    `Hi, I'd like to book a bin clean with ${BUSINESS_NAME}.`
+    `Hi, I'd like to make an equiry with ${BUSINESS_NAME}.`
   );
   const wa = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${minimalMsg}`;
   return (
