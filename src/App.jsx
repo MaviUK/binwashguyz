@@ -370,9 +370,12 @@ function MobileActionBar({ onBook }) {
     `Hi, I'd like to make an enquiry with ${BUSINESS_NAME}.`
   );
   const wa = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${minimalMsg}`;
+  const tel = `tel:${PHONE_NUMBER.replace("+", "")}`;
+
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
+      <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-3 gap-3 items-center">
+        {/* WhatsApp (left) */}
         <a
           href={wa}
           target="_blank"
@@ -381,6 +384,32 @@ function MobileActionBar({ onBook }) {
         >
           WhatsApp
         </a>
+
+        {/* Phone (center, blue round icon button) */}
+        <a
+          href={tel}
+          aria-label={`Call ${PHONE_NUMBER}`}
+          title={`Call ${PHONE_NUMBER}`}
+          className="mx-auto w-12 h-12 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow hover:brightness-110 active:scale-95 transition"
+        >
+          {/* Phone icon (inline SVG) */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5A2.25 2.25 0 0 0 21 19.5v-3.337a2.25 2.25 0 0 0-1.743-2.186l-3.108-.777a2.25 2.25 0 0 0-2.3.87l-.7.933a.75.75 0 0 1-1.05.168 12.06 12.06 0 0 1-4.39-4.39.75.75 0 0 1 .168-1.05l.933-.7a2.25 2.25 0 0 0 .87-2.3L9.023 3.74A2.25 2.25 0 0 0 6.837 2H3.5A2.25 2.25 0 0 0 1.25 4.25v2.5Z"
+            />
+          </svg>
+        </a>
+
+        {/* Book (right) */}
         <button
           onClick={onBook}
           className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
@@ -391,6 +420,7 @@ function MobileActionBar({ onBook }) {
     </div>
   );
 }
+
 
 /* ---------------- Booking Modal (full, with Email + Phone) ---------------- */
 function BookingModal({ onClose }) {
