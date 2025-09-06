@@ -32,7 +32,7 @@ exports.handler = async (event) => {
   try {
     const data = JSON.parse(event.body || '{}');
     // Hardcoded default to your new inbox
-    const to = Array.isArray(data.to) ? data.to : [data.to || 'aabincleaning@gmail.com'];
+    const to = Array.isArray(data.to) ? data.to : [data.to || 'binwashbuyz@gmail.com'];
 
     const payload = {
       from: 'Bin Wash Guyz <onboarding@resend.dev>', // swap to your verified domain when ready
