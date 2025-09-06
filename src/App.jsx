@@ -201,10 +201,11 @@ function Sections() {
   );
 }
 
-/* ---------------- Contact (updated fields) ---------------- */
+/* ---------------- Contact (sends via Resend) ---------------- */
 function Contact() {
   const [f, setF] = useState({ name: "", email: "", phone: "", message: "" });
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const isMobile =
     typeof navigator !== "undefined" &&
@@ -219,9 +220,6 @@ function Contact() {
   );
 
   const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${encoded}`;
-  const mailtoURL = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(
-    "New enquiry"
-  )}&body=${encoded}`;
 
   function copyPhone() {
     if (navigator.clipboard?.writeText) {
@@ -231,12 +229,41 @@ function Contact() {
     }
   }
 
+  const canSend = f.name.trim() && (f.email.trim() || f.phone.trim()) && f.message.trim();
+
+  async function handleSend(e) {
+    e.preventDefault();
+    if (!canSend) return;
+    try {
+      setSending(true);
+      const res = await fetch("/.netlify/functions/sendContactEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          business: BUSINESS_NAME,
+          to: BOOKING_EMAIL,         // where you receive contact messages
+          name: f.name,
+          email: f.email,
+          phone: f.phone,
+          message: f.message,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      alert("Thanks! Your message has been sent.");
+      setF({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      alert("Error sending message. Please try WhatsApp or call us.");
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <section id="contact" className="bg-[#000910]">
       <div className="max-w-6xl mx-auto px-4 py-14">
         <h2 className="text-3xl font-extrabold text-white">Contact</h2>
 
-        <div className="mt-6 grid md:grid-cols-3 gap-4">
+        <form className="mt-6 grid md:grid-cols-3 gap-4" onSubmit={handleSend}>
           <Text label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
           <Text label="Email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
           <Text label="Phone No" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
@@ -246,49 +273,52 @@ function Contact() {
             onChange={(v) => setF({ ...f, message: v })}
             className="md:col-span-3"
           />
-        </div>
 
-        <div className="mt-6 grid sm:grid-cols-3 gap-3">
-          {/* WhatsApp - Green */}
-          <a
-            href={whatsappURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110"
-          >
-            WhatsApp
-          </a>
-
-          {/* Email - Orange */}
-          <a
-            href={mailtoURL}
-            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-black bg-[#e07010] hover:brightness-110"
-          >
-            Email
-          </a>
-
-          {/* Phone - Blue (dial on mobile, show/copy on desktop) */}
-          {isMobile ? (
+          <div className="md:col-span-3 mt-2 grid sm:grid-cols-3 gap-3">
+            {/* WhatsApp */}
             <a
-              href={`tel:${PHONE_NUMBER.replace("+", "")}`}
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
+              href={whatsappURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110"
             >
-              Phone
+              WhatsApp
             </a>
-          ) : (
+
+            {/* Send via Resend */}
             <button
-              onClick={copyPhone}
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
-              title={PHONE_NUMBER}
+              type="submit"
+              disabled={!canSend || sending}
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-black bg-[#e07010] hover:brightness-110 disabled:opacity-60"
             >
-              {copied ? "Copied!" : `Phone: ${PHONE_NUMBER}`}
+              {sending ? "Sending..." : "Send Message"}
             </button>
-          )}
-        </div>
+
+            {/* Phone (dial on mobile, copy on desktop) */}
+            {isMobile ? (
+              <a
+                href={`tel:${PHONE_NUMBER.replace("+", "")}`}
+                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
+              >
+                Phone
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={copyPhone}
+                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#0ea5e9] hover:brightness-110"
+                title={PHONE_NUMBER}
+              >
+                {copied ? "Copied!" : `Phone: ${PHONE_NUMBER}`}
+              </button>
+            )}
+          </div>
+        </form>
       </div>
     </section>
   );
 }
+
 
 /* ---------------- CTA ---------------- */
 function CTA() {
