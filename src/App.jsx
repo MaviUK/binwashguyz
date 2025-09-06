@@ -349,6 +349,8 @@ function MobileActionBar({ onBook }) {
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
+    email: "",      // NEW
+    phone: "",
     address: "",
     postcode: "",
     bins: [],          // multi-select
