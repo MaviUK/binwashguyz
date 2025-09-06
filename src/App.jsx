@@ -291,7 +291,7 @@ function Contact() {
               disabled={!canSend || sending}
               className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-black bg-[#e07010] hover:brightness-110 disabled:opacity-60"
             >
-              {sending ? "Sending..." : "Send Message"}
+              {sending ? "Sending..." : "Email"}
             </button>
 
             {/* Phone (dial on mobile, copy on desktop) */}
