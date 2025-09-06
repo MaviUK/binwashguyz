@@ -345,15 +345,15 @@ function MobileActionBar({ onBook }) {
   );
 }
 
-/* ---------------- Booking Modal (full) ---------------- */
+/* ---------------- Booking Modal (full, with Email + Phone) ---------------- */
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
     email: "",      // NEW
-    phone: "",
+    phone: "",      // NEW
     address: "",
     postcode: "",
-    bins: [],          // multi-select
+    bins: [],       // multi-select
     date: "",
     notes: "",
   });
@@ -379,6 +379,10 @@ function BookingModal({ onClose }) {
       setError("Please select at least one bin.");
       return false;
     }
+    if (!form.email.trim() && !form.phone.trim()) {
+      setError("Please provide at least one contact method (Email or Phone).");
+      return false;
+    }
     setError("");
     return true;
   }
@@ -388,12 +392,15 @@ function BookingModal({ onClose }) {
     form.address.trim() &&
     form.postcode.trim() &&
     form.date &&
-    form.bins.length > 0;
+    form.bins.length > 0 &&
+    (form.email.trim() || form.phone.trim());
 
   function buildMessage() {
     return [
       `New bin clean request for ${BUSINESS_NAME}:`,
       `Name: ${form.name}`,
+      form.email ? `Email: ${form.email}` : null,
+      form.phone ? `Phone: ${form.phone}` : null,
       `Address: ${form.address}`,
       `Postcode: ${form.postcode}`,
       `Bins: ${form.bins.join(", ")}`,
@@ -404,10 +411,9 @@ function BookingModal({ onClose }) {
       .join("\n");
   }
 
-  const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace(
-    "+",
-    ""
-  )}?text=${encodeURIComponent(buildMessage())}`;
+  const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${encodeURIComponent(
+    buildMessage()
+  )}`;
 
   async function handleEmail(e) {
     e.preventDefault();
@@ -440,13 +446,24 @@ function BookingModal({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70">
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-title"
+    >
       {/* Scrollable container with sticky header/footer for mobile usability */}
       <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[#306030] bg-[#001820] text-[#f0e0b0] shadow-2xl">
         {/* Sticky header */}
         <div className="sticky top-0 flex items-center justify-between p-4 border-b border-[#103010] bg-[#001820]">
-          <h3 className="font-extrabold text-white">Book a Clean</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl" aria-label="Close">
+          <h3 id="booking-title" className="font-extrabold text-white">
+            Book a Clean
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/5 rounded-xl"
+            aria-label="Close booking modal"
+          >
             ✕
           </button>
         </div>
@@ -455,7 +472,26 @@ function BookingModal({ onClose }) {
         <form className="p-4 grid md:grid-cols-2 gap-4">
           <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
           <Text label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
-          <Text label="Address" value={form.address} onChange={(v) => update("address", v)} className="md:col-span-2" />
+
+          <Text
+            label="Email"
+            value={form.email}
+            onChange={(v) => update("email", v)}
+            type="email"
+          />
+          <Text
+            label="Phone No"
+            value={form.phone}
+            onChange={(v) => update("phone", v)}
+            type="tel"
+          />
+
+          <Text
+            label="Address"
+            value={form.address}
+            onChange={(v) => update("address", v)}
+            className="md:col-span-2"
+          />
 
           {/* Multi-select bins as checkboxes */}
           <div className="md:col-span-2">
@@ -483,17 +519,34 @@ function BookingModal({ onClose }) {
             </div>
           </div>
 
-          <Text label="Preferred Date" type="date" value={form.date} onChange={(v) => update("date", v)} />
+          <Text
+            label="Preferred Date"
+            type="date"
+            value={form.date}
+            onChange={(v) => update("date", v)}
+          />
           <div /> {/* spacer for grid alignment */}
-          <TextArea label="Notes (optional)" value={form.notes} onChange={(v) => update("notes", v)} className="md:col-span-2" />
+
+          <TextArea
+            label="Notes (optional)"
+            value={form.notes}
+            onChange={(v) => update("notes", v)}
+            className="md:col-span-2"
+          />
         </form>
 
         {/* Validation error */}
-        {error && <div className="px-4 text-sm text-red-400">{error}</div>}
+        {error && (
+          <div className="px-4 pb-2 text-sm text-red-400" role="alert">
+            {error}
+          </div>
+        )}
 
         {/* Sticky footer actions */}
         <div className="sticky bottom-0 p-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between border-t border-[#103010] bg-[#001820]">
-          <div className="text-xs text-[#f0e0b0]/80">Submit via WhatsApp or Email.</div>
+          <div className="text-xs text-[#f0e0b0]/80">
+            Submit via WhatsApp or Email. We’ll get back to you to confirm.
+          </div>
           <div className="flex gap-3">
             <button
               onClick={handleWhatsApp}
@@ -515,6 +568,7 @@ function BookingModal({ onClose }) {
     </div>
   );
 }
+
 
 
 /* ---------------- UI Field Helpers ---------------- */
