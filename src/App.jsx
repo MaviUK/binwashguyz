@@ -1,4 +1,38 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+/* ======== AREA LANDING PAGE IMPORTS (27) ======== */
+// Compass directions
+import NorthBelfastBinCleaning from "./components/areas/NorthBelfast";
+import SouthBelfastBinCleaning from "./components/areas/SouthBelfast";
+import EastBelfastBinCleaning from "./components/areas/EastBelfast";
+import WestBelfastBinCleaning from "./components/areas/WestBelfastBin";
+// City centre districts
+import CathedralQuarterBinCleaning from "./components/areas/CathedralQuarter";
+import LinenQuarterBinCleaning from "./components/areas/LinenQuarter";
+import TitanicQuarterBinCleaning from "./components/areas/TitanicQuarter";
+import QueensQuarterBinCleaning from "./components/areas/QueensQuarter";
+import GaeltachtQuarterBinCleaning from "./components/areas/GaeltachtQuarter";
+// Suburbs & neighbourhoods
+import AndersonstownBinCleaning from "./components/areas/AndersonstownBin";
+import BallyhackamoreBinCleaning from "./components/areas/Ballyhackamore";
+import HolywoodRoadSydenhamBinCleaning from "./components/areas/HolywoodRoadSydenham";
+import MaloneStranmillisBinCleaning from "./components/areas/MaloneStranmillis";
+import ShankillRoadBinCleaning from "./components/areas/ShankillRoad";
+import OrmeauRoadBinCleaning from "./components/areas/OrmeauRoad";
+import FallsRoadBinCleaning from "./components/areas/FallsRoad";
+import CavehillFortwilliamBinCleaning from "./components/areas/CavehillFortwilliam";
+// Council wards / DEAs
+import BlackMountainDeaBinCleaning from "./components/areas/BlackMountain";
+import CastleDeaBinCleaning from "./components/areas/Castle";
+import CourtDeaBinCleaning from "./components/areas/Court";
+import CollinDeaBinCleaning from "./components/areas/Collin";
+import BotanicDeaBinCleaning from "./components/areas/Botanic";
+import LisnasharraghDeaBinCleaning from "./components/areas/Lisnasharragh";
+import OldparkDeaBinCleaning from "./components/areas/Oldpark";
+import OrmistonDeaBinCleaning from "./components/areas/Ormistong";
+import BalmoralDeaBinCleaning from "./components/areas/Balmoral";
+import TitanicDeaBinCleaning from "./components/areas/Titanic";
 
 // ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
