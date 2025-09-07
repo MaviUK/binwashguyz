@@ -1,96 +1,15 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-/* ======== AREA LANDING PAGE IMPORTS (27) ======== */
-// Compass directions
-import NorthBelfastBinCleaning from "./components/areas/NorthBelfastBinCleaning";
-import SouthBelfastBinCleaning from "./components/areas/SouthBelfastBinCleaning";
-import EastBelfastBinCleaning from "./components/areas/EastBelfastBinCleaning";
-import WestBelfastBinCleaning from "./components/areas/WestBelfastBinCleaning";
-// City centre districts
-import CathedralQuarterBinCleaning from "./components/areas/CathedralQuarterBinCleaning";
-import LinenQuarterBinCleaning from "./components/areas/LinenQuarterBinCleaning";
-import TitanicQuarterBinCleaning from "./components/areas/TitanicQuarterBinCleaning";
-import QueensQuarterBinCleaning from "./components/areas/QueensQuarterBinCleaning";
-import GaeltachtQuarterBinCleaning from "./components/areas/GaeltachtQuarterBinCleaning";
-// Suburbs & neighbourhoods
-import AndersonstownBinCleaning from "./components/areas/AndersonstownBinCleaning";
-import BallyhackamoreBinCleaning from "./components/areas/BallyhackamoreBinCleaning";
-import HolywoodRoadSydenhamBinCleaning from "./components/areas/HolywoodRoadSydenhamBinCleaning";
-import MaloneStranmillisBinCleaning from "./components/areas/MaloneStranmillisBinCleaning";
-import ShankillRoadBinCleaning from "./components/areas/ShankillRoadBinCleaning";
-import OrmeauRoadBinCleaning from "./components/areas/OrmeauRoadBinCleaning";
-import FallsRoadBinCleaning from "./components/areas/FallsRoadBinCleaning";
-import CavehillFortwilliamBinCleaning from "./components/areas/CavehillFortwilliamBinCleaning";
-// Council wards / DEAs
-import BlackMountainDeaBinCleaning from "./components/areas/BlackMountainDeaBinCleaning";
-import CastleDeaBinCleaning from "./components/areas/CastleDeaBinCleaning";
-import CourtDeaBinCleaning from "./components/areas/CourtDeaBinCleaning";
-import CollinDeaBinCleaning from "./components/areas/CollinDeaBinCleaning";
-import BotanicDeaBinCleaning from "./components/areas/BotanicDeaBinCleaning";
-import LisnasharraghDeaBinCleaning from "./components/areas/LisnasharraghDeaBinCleaning";
-import OldparkDeaBinCleaning from "./components/areas/OldparkDeaBinCleaning";
-import OrmistonDeaBinCleaning from "./components/areas/OrmistonDeaBinCleaning";
-import BalmoralDeaBinCleaning from "./components/areas/BalmoralDeaBinCleaning";
-import TitanicDeaBinCleaning from "./components/areas/TitanicDeaBinCleaning";
-
-/* ================== QUICK CONFIG ================== */
+// ================== QUICK CONFIG ==================
 const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447533247375"; // international format
-const BOOKING_EMAIL = "info@binwashguyz.co.uk"; // email for enquiries
+const BOOKING_EMAIL = "binwashguyz@gmail.com"; // email for enquiries
 const PHONE_NUMBER = "07533247375"; // business phone number
 const BIN_OPTIONS = ["Household", "Recycling", "Food"];
-/* ================================================== */
 
-/* ========== ROUTER WRAPPER (EXPORT DEFAULT) ========== */
+// ==================================================
+
 export default function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Home page */}
-        <Route path="/" element={<HomeApp />} />
-
-        {/* Compass direction pages */}
-        <Route path="/north-belfast-bin-cleaning" element={<NorthBelfastBinCleaning />} />
-        <Route path="/south-belfast-bin-cleaning" element={<SouthBelfastBinCleaning />} />
-        <Route path="/east-belfast-bin-cleaning" element={<EastBelfastBinCleaning />} />
-        <Route path="/west-belfast-bin-cleaning" element={<WestBelfastBinCleaning />} />
-
-        {/* City centre districts */}
-        <Route path="/cathedral-quarter-bin-cleaning" element={<CathedralQuarterBinCleaning />} />
-        <Route path="/linen-quarter-bin-cleaning" element={<LinenQuarterBinCleaning />} />
-        <Route path="/titanic-quarter-bin-cleaning" element={<TitanicQuarterBinCleaning />} />
-        <Route path="/queens-quarter-bin-cleaning" element={<QueensQuarterBinCleaning />} />
-        <Route path="/gaeltacht-quarter-bin-cleaning" element={<GaeltachtQuarterBinCleaning />} />
-
-        {/* Suburbs & neighbourhoods */}
-        <Route path="/andersonstown-bin-cleaning" element={<AndersonstownBinCleaning />} />
-        <Route path="/ballyhackamore-bin-cleaning" element={<BallyhackamoreBinCleaning />} />
-        <Route path="/holywood-road-sydenham-bin-cleaning" element={<HolywoodRoadSydenhamBinCleaning />} />
-        <Route path="/malone-stranmillis-bin-cleaning" element={<MaloneStranmillisBinCleaning />} />
-        <Route path="/shankill-road-bin-cleaning" element={<ShankillRoadBinCleaning />} />
-        <Route path="/ormeau-road-bin-cleaning" element={<OrmeauRoadBinCleaning />} />
-        <Route path="/falls-road-bin-cleaning" element={<FallsRoadBinCleaning />} />
-        <Route path="/cavehill-fortwilliam-bin-cleaning" element={<CavehillFortwilliamBinCleaning />} />
-
-        {/* Council wards / DEAs */}
-        <Route path="/black-mountain-dea-bin-cleaning" element={<BlackMountainDeaBinCleaning />} />
-        <Route path="/castle-dea-bin-cleaning" element={<CastleDeaBinCleaning />} />
-        <Route path="/court-dea-bin-cleaning" element={<CourtDeaBinCleaning />} />
-        <Route path="/collin-dea-bin-cleaning" element={<CollinDeaBinCleaning />} />
-        <Route path="/botanic-dea-bin-cleaning" element={<BotanicDeaBinCleaning />} />
-        <Route path="/lisnasharragh-dea-bin-cleaning" element={<LisnasharraghDeaBinCleaning />} />
-        <Route path="/oldpark-dea-bin-cleaning" element={<OldparkDeaBinCleaning />} />
-        <Route path="/ormiston-dea-bin-cleaning" element={<OrmistonDeaBinCleaning />} />
-        <Route path="/balmoral-dea-bin-cleaning" element={<BalmoralDeaBinCleaning />} />
-        <Route path="/titanic-dea-bin-cleaning" element={<TitanicDeaBinCleaning />} />
-      </Routes>
-    </Router>
-  );
-}
-
-/* ========== HOME (YOUR EXISTING UI) ========== */
-function HomeApp() {
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
@@ -207,6 +126,8 @@ function Hero() {
   );
 }
 
+
+
 /* ---------------- Sections ---------------- */
 function Sections() {
   return (
@@ -232,7 +153,7 @@ function Sections() {
       <section id="benefits">
         <div className="max-w-6xl mx-auto px-4 py-14">
           <h2 className="text-3xl font-extrabold text-white">Why clean your bins?</h2>
-        <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
+          <div className="mt-6 grid md:grid-cols-3 gap-6 text-sm">
             {[
               { t: "Kills germs", d: "Removes bacteria build-up and harmful pathogens." },
               { t: "Odour control", d: "Deodorizes and leaves a fresh scent, even in hot weather." },
@@ -280,20 +201,15 @@ function Sections() {
   );
 }
 
-/* ---------------- Contact (all fields required; WA gated) ---------------- */
+/* ---------------- Contact (sends via Resend) ---------------- */
 function Contact() {
   const [f, setF] = useState({ name: "", email: "", phone: "", message: "" });
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
 
   const isMobile =
     typeof navigator !== "undefined" &&
     /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  // Require ALL fields
-  const canSend =
-    f.name.trim() && f.email.trim() && f.phone.trim() && f.message.trim();
 
   const encoded = encodeURIComponent(
     `Enquiry for ${BUSINESS_NAME}\n\n` +
@@ -313,31 +229,26 @@ function Contact() {
     }
   }
 
+  const canSend = f.name.trim() && (f.email.trim() || f.phone.trim()) && f.message.trim();
+
   async function handleSend(e) {
     e.preventDefault();
-    if (!canSend) {
-      setError("Please fill Name, Email, Phone and Message.");
-      return;
-    }
+    if (!canSend) return;
     try {
       setSending(true);
-      setError("");
       const res = await fetch("/.netlify/functions/sendContactEmail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           business: BUSINESS_NAME,
-          to: BOOKING_EMAIL,
+          to: BOOKING_EMAIL,         // where you receive contact messages
           name: f.name,
           email: f.email,
           phone: f.phone,
           message: f.message,
         }),
       });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Failed to send");
-      }
+      if (!res.ok) throw new Error("Failed to send");
       alert("Thanks! Your message has been sent.");
       setF({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
@@ -347,42 +258,32 @@ function Contact() {
     }
   }
 
-  function handleWhatsApp(e) {
-    e.preventDefault();
-    if (!canSend) {
-      setError("Please fill Name, Email, Phone and Message.");
-      return;
-    }
-    window.open(whatsappURL, "_blank", "noopener,noreferrer");
-  }
-
   return (
     <section id="contact" className="bg-[#000910]">
       <div className="max-w-6xl mx-auto px-4 py-14">
         <h2 className="text-3xl font-extrabold text-white">Contact</h2>
 
-        {error && (
-          <div className="mt-3 text-sm text-red-400" role="alert">
-            {error}
-          </div>
-        )}
-
         <form className="mt-6 grid md:grid-cols-3 gap-4" onSubmit={handleSend}>
-          <Text required label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
-          <Text required label="Email" type="email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
-          <Text required label="Phone No" type="tel" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
-          <TextArea required label="Message" value={f.message} onChange={(v) => setF({ ...f, message: v })} className="md:col-span-3" />
+          <Text label="Name" value={f.name} onChange={(v) => setF({ ...f, name: v })} />
+          <Text label="Email" value={f.email} onChange={(v) => setF({ ...f, email: v })} />
+          <Text label="Phone No" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
+          <TextArea
+            label="Message"
+            value={f.message}
+            onChange={(v) => setF({ ...f, message: v })}
+            className="md:col-span-3"
+          />
 
           <div className="md:col-span-3 mt-2 grid sm:grid-cols-3 gap-3">
-            {/* WhatsApp (gated & disabled) */}
-            <button
-              type="button"
-              onClick={handleWhatsApp}
-              disabled={!canSend || sending}
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110 disabled:opacity-60"
+            {/* WhatsApp */}
+            <a
+              href={whatsappURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 font-bold text-white bg-[#25D366] hover:brightness-110"
             >
               WhatsApp
-            </button>
+            </a>
 
             {/* Send via Resend */}
             <button
@@ -418,6 +319,7 @@ function Contact() {
   );
 }
 
+
 /* ---------------- CTA ---------------- */
 function CTA() {
   return (
@@ -435,12 +337,12 @@ function CTA() {
 function Footer() {
   return (
     <footer className="py-10 text-center text-xs text-[#f0e0b0]/80">
-      <div>
-        © {new Date().getFullYear()} {BUSINESS_NAME}. Built By{" "}
-        <a href="https://nibing.uy" target="_blank" rel="noopener noreferrer">
-          Ni Bin Guy
-        </a>
-      </div>
+     <div>
+  © {new Date().getFullYear()} {BUSINESS_NAME}. Built By{" "}
+  <a href="https://nibing.uy" target="_blank" rel="noopener noreferrer">
+    Ni Bin Guy
+  </a>
+</div>
     </footer>
   );
 }
@@ -448,53 +350,23 @@ function Footer() {
 /* ---------------- Mobile Action Bar ---------------- */
 function MobileActionBar({ onBook }) {
   const minimalMsg = encodeURIComponent(
-    `Hi, I'd like to make an enquiry with ${BUSINESS_NAME}.`
+    `Hi, I'd like to make an equiry with ${BUSINESS_NAME}.`
   );
   const wa = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${minimalMsg}`;
-  const tel = `tel:${PHONE_NUMBER.replace("+", "")}`;
-
   return (
     <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#103010] bg-[#001820]/95 backdrop-blur">
-      {/* 1fr / auto / 1fr keeps the middle icon tight while side buttons fill */}
-      <div className="max-w-6xl mx-auto px-2 py-2 grid grid-cols-[1fr_auto_1fr] gap-1 items-center">
-        {/* WhatsApp — LARGE */}
+      <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
         <a
           href={wa}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center w-full h-14 rounded-2xl bg-[#306030] text-white font-bold text-base tracking-wide shadow hover:brightness-110 active:scale-[0.99] transition"
+          className="inline-flex items-center justify-center rounded-2xl bg-[#306030] text-white font-bold py-3"
         >
           WhatsApp
         </a>
-
-        {/* Phone — compact blue round icon */}
-        <a
-          href={tel}
-          aria-label={`Call ${PHONE_NUMBER}`}
-          title={`Call ${PHONE_NUMBER}`}
-          className="mx-1 w-14 h-14 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition"
-        >
-          {/* Phone icon (inline SVG) */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-7 h-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5A2.25 2.25 0 0 0 21 19.5v-3.337a2.25 2.25 0 0 0-1.743-2.186l-3.108-.777a2.25 2.25 0 0 0-2.3.87l-.7.933a.75.75 0 0 1-1.05.168 12.06 12.06 0 0 1-4.39-4.39.75.75 0 0 1 .168-1.05l.933-.7a2.25 2.25 0 0 0 .87-2.3L9.023 3.74A2.25 2.25 0 0 0 6.837 2H3.5A2.25 2.25 0 0 0 1.25 4.25v2.5Z"
-            />
-          </svg>
-        </a>
-
-        {/* Book — LARGE */}
         <button
           onClick={onBook}
-          className="inline-flex items-center justify-center w-full h-14 rounded-2xl bg-[#e07010] text-black font-extrabold text-base tracking-wide shadow hover:brightness-110 active:scale-[0.99] transition"
+          className="inline-flex items-center justify-center rounded-2xl bg-[#e07010] text-black font-extrabold py-3"
         >
           Book
         </button>
@@ -503,13 +375,12 @@ function MobileActionBar({ onBook }) {
   );
 }
 
-
 /* ---------------- Booking Modal (full, with Email + Phone) ---------------- */
 function BookingModal({ onClose }) {
   const [form, setForm] = useState({
     name: "",
-    email: "",
-    phone: "",
+    email: "",      // NEW
+    phone: "",      // NEW
     address: "",
     postcode: "",
     bins: [],       // multi-select
@@ -629,8 +500,8 @@ function BookingModal({ onClose }) {
 
         {/* Form */}
         <form className="p-4 grid md:grid-cols-2 gap-4">
-          <Text required label="Name" value={form.name} onChange={(v) => update("name", v)} />
-          <Text required label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
+          <Text label="Name" value={form.name} onChange={(v) => update("name", v)} />
+          <Text label="Postcode" value={form.postcode} onChange={(v) => update("postcode", v)} />
 
           <Text
             label="Email"
@@ -646,7 +517,6 @@ function BookingModal({ onClose }) {
           />
 
           <Text
-            required
             label="Address"
             value={form.address}
             onChange={(v) => update("address", v)}
@@ -680,7 +550,6 @@ function BookingModal({ onClose }) {
           </div>
 
           <Text
-            required
             label="Preferred Date"
             type="date"
             value={form.date}
@@ -730,6 +599,8 @@ function BookingModal({ onClose }) {
   );
 }
 
+
+
 /* ---------------- UI Field Helpers ---------------- */
 function FieldShell({ label, children, className = "" }) {
   return (
@@ -740,14 +611,13 @@ function FieldShell({ label, children, className = "" }) {
   );
 }
 
-function Text({ label, value, onChange, type = "text", required = false, className = "" }) {
+function Text({ label, value, onChange, type = "text", className = "" }) {
   return (
     <FieldShell label={label} className={className}>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        required={required}
         className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
         placeholder={label}
       />
@@ -755,14 +625,13 @@ function Text({ label, value, onChange, type = "text", required = false, classNa
   );
 }
 
-function TextArea({ label, value, onChange, required = false, className = "" }) {
+function TextArea({ label, value, onChange, className = "" }) {
   return (
     <FieldShell label={label} className={className}>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        required={required}
         className="w-full rounded-xl bg-[#003040] border border-[#103010] px-3 py-2 text-white placeholder-[#f0e0b0]/50 focus:outline-none"
         placeholder={label}
       />
