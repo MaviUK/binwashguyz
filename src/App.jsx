@@ -1,38 +1,38 @@
 import { useState } from "react";
+// App.jsx (imports section)
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-/* ======== AREA LANDING PAGE IMPORTS (27) ======== */
-// Compass directions
-import NorthBelfastBinCleaning from "./components/areas/NorthBelfastBinCleaning";
-import SouthBelfastBinCleaning from "./components/areas/SouthBelfastBinCleaning";
-import EastBelfastBinCleaning from "./components/areas/EastBelfastBinCleaning";
-import WestBelfastBinCleaning from "./components/areas/WestBelfastBinCleaning";
-// City centre districts
-import CathedralQuarterBinCleaning from "./components/areas/CathedralQuarterBinCleaning";
-import LinenQuarterBinCleaning from "./components/areas/LinenQuarterBinCleaning";
-import TitanicQuarterBinCleaning from "./components/areas/TitanicQuarterBinCleaning";
-import QueensQuarterBinCleaning from "./components/areas/QueensQuarterBinCleaning";
-import GaeltachtQuarterBinCleaning from "./components/areas/GaeltachtQuarterBinCleaning";
+// Compass
+import NorthBelfastBinCleaning from "./pages/NorthBelfastBinCleaning";
+import SouthBelfastBinCleaning from "./pages/SouthBelfastBinCleaning";
+import EastBelfastBinCleaning from "./pages/EastBelfastBinCleaning";
+import WestBelfastBinCleaning from "./pages/WestBelfastBinCleaning";
+// City centre
+import CathedralQuarterBinCleaning from "./pages/CathedralQuarterBinCleaning";
+import LinenQuarterBinCleaning from "./pages/LinenQuarterBinCleaning";
+import TitanicQuarterBinCleaning from "./pages/TitanicQuarterBinCleaning";
+import QueensQuarterBinCleaning from "./pages/QueensQuarterBinCleaning";
+import GaeltachtQuarterBinCleaning from "./pages/GaeltachtQuarterBinCleaning";
 // Suburbs & neighbourhoods
-import AndersonstownBinCleaning from "./components/areas/AndersonstownBinCleaning";
-import BallyhackamoreBinCleaning from "./components/areas/BallyhackamoreBinCleaning";
-import HolywoodRoadSydenhamBinCleaning from "./components/areas/HolywoodRoadSydenhamBinCleaning";
-import MaloneStranmillisBinCleaning from "./components/areas/MaloneStranmillisBinCleaning";
-import ShankillRoadBinCleaning from "./components/areas/ShankillRoadBinCleaning";
-import OrmeauRoadBinCleaning from "./components/areas/OrmeauRoadBinCleaning";
-import FallsRoadBinCleaning from "./components/areas/FallsRoadBinCleaning";
-import CavehillFortwilliamBinCleaning from "./components/areas/CavehillFortwilliamBinCleaning";
-// Council wards / DEAs
-import BlackMountainDeaBinCleaning from "./components/areas/BlackMountainDeaBinCleaning";
-import CastleDeaBinCleaning from "./components/areas/CastleDeaBinCleaning";
-import CourtDeaBinCleaning from "./components/areas/CourtDeaBinCleaning";
-import CollinDeaBinCleaning from "./components/areas/CollinDeaBinCleaning";
-import BotanicDeaBinCleaning from "./components/areas/BotanicDeaBinCleaning";
-import LisnasharraghDeaBinCleaning from "./components/areas/LisnasharraghDeaBinCleaning";
-import OldparkDeaBinCleaning from "./components/areas/OldparkDeaBinCleaning";
-import OrmistonDeaBinCleaning from "./components/areas/OrmistonDeaBinCleaning";
-import BalmoralDeaBinCleaning from "./components/areas/BalmoralDeaBinCleaning";
-import TitanicDeaBinCleaning from "./components/areas/TitanicDeaBinCleaning";
+import AndersonstownBinCleaning from "./pages/AndersonstownBinCleaning";
+import BallyhackamoreBinCleaning from "./pages/BallyhackamoreBinCleaning";
+import HolywoodRoadSydenhamBinCleaning from "./pages/HolywoodRoadSydenhamBinCleaning";
+import MaloneStranmillisBinCleaning from "./pages/MaloneStranmillisBinCleaning";
+import ShankillRoadBinCleaning from "./pages/ShankillRoadBinCleaning";
+import OrmeauRoadBinCleaning from "./pages/OrmeauRoadBinCleaning";
+import FallsRoadBinCleaning from "./pages/FallsRoadBinCleaning";
+import CavehillFortwilliamBinCleaning from "./pages/CavehillFortwilliamBinCleaning";
+// DEAs
+import BlackMountainDeaBinCleaning from "./pages/BlackMountainDeaBinCleaning";
+import CastleDeaBinCleaning from "./pages/CastleDeaBinCleaning";
+import CourtDeaBinCleaning from "./pages/CourtDeaBinCleaning";
+import CollinDeaBinCleaning from "./pages/CollinDeaBinCleaning";
+import BotanicDeaBinCleaning from "./pages/BotanicDeaBinCleaning";
+import LisnasharraghDeaBinCleaning from "./pages/LisnasharraghDeaBinCleaning";
+import OldparkDeaBinCleaning from "./pages/OldparkDeaBinCleaning";
+import OrmistonDeaBinCleaning from "./pages/OrmistonDeaBinCleaning";
+import BalmoralDeaBinCleaning from "./pages/BalmoralDeaBinCleaning";
+import TitanicDeaBinCleaning from "./pages/TitanicDeaBinCleaning";
+
 
 /* ================== QUICK CONFIG ================== */
 const BUSINESS_NAME = "Bin Wash Guyz";
