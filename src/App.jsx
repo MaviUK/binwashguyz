@@ -3,47 +3,94 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 /* ======== AREA LANDING PAGE IMPORTS (27) ======== */
 // Compass directions
-import NorthBelfastBinCleaning from "./components/areas/NorthBelfast";
-import SouthBelfastBinCleaning from "./components/areas/SouthBelfast";
-import EastBelfastBinCleaning from "./components/areas/EastBelfast";
-import WestBelfastBinCleaning from "./components/areas/WestBelfastBin";
+import NorthBelfastBinCleaning from "./components/areas/NorthBelfastBinCleaning";
+import SouthBelfastBinCleaning from "./components/areas/SouthBelfastBinCleaning";
+import EastBelfastBinCleaning from "./components/areas/EastBelfastBinCleaning";
+import WestBelfastBinCleaning from "./components/areas/WestBelfastBinCleaning";
 // City centre districts
-import CathedralQuarterBinCleaning from "./components/areas/CathedralQuarter";
-import LinenQuarterBinCleaning from "./components/areas/LinenQuarter";
-import TitanicQuarterBinCleaning from "./components/areas/TitanicQuarter";
-import QueensQuarterBinCleaning from "./components/areas/QueensQuarter";
-import GaeltachtQuarterBinCleaning from "./components/areas/GaeltachtQuarter";
+import CathedralQuarterBinCleaning from "./components/areas/CathedralQuarterBinCleaning";
+import LinenQuarterBinCleaning from "./components/areas/LinenQuarterBinCleaning";
+import TitanicQuarterBinCleaning from "./components/areas/TitanicQuarterBinCleaning";
+import QueensQuarterBinCleaning from "./components/areas/QueensQuarterBinCleaning";
+import GaeltachtQuarterBinCleaning from "./components/areas/GaeltachtQuarterBinCleaning";
 // Suburbs & neighbourhoods
-import AndersonstownBinCleaning from "./components/areas/AndersonstownBin";
-import BallyhackamoreBinCleaning from "./components/areas/Ballyhackamore";
-import HolywoodRoadSydenhamBinCleaning from "./components/areas/HolywoodRoadSydenham";
-import MaloneStranmillisBinCleaning from "./components/areas/MaloneStranmillis";
-import ShankillRoadBinCleaning from "./components/areas/ShankillRoad";
-import OrmeauRoadBinCleaning from "./components/areas/OrmeauRoad";
-import FallsRoadBinCleaning from "./components/areas/FallsRoad";
-import CavehillFortwilliamBinCleaning from "./components/areas/CavehillFortwilliam";
+import AndersonstownBinCleaning from "./components/areas/AndersonstownBinCleaning";
+import BallyhackamoreBinCleaning from "./components/areas/BallyhackamoreBinCleaning";
+import HolywoodRoadSydenhamBinCleaning from "./components/areas/HolywoodRoadSydenhamBinCleaning";
+import MaloneStranmillisBinCleaning from "./components/areas/MaloneStranmillisBinCleaning";
+import ShankillRoadBinCleaning from "./components/areas/ShankillRoadBinCleaning";
+import OrmeauRoadBinCleaning from "./components/areas/OrmeauRoadBinCleaning";
+import FallsRoadBinCleaning from "./components/areas/FallsRoadBinCleaning";
+import CavehillFortwilliamBinCleaning from "./components/areas/CavehillFortwilliamBinCleaning";
 // Council wards / DEAs
-import BlackMountainDeaBinCleaning from "./components/areas/BlackMountain";
-import CastleDeaBinCleaning from "./components/areas/Castle";
-import CourtDeaBinCleaning from "./components/areas/Court";
-import CollinDeaBinCleaning from "./components/areas/Collin";
-import BotanicDeaBinCleaning from "./components/areas/Botanic";
-import LisnasharraghDeaBinCleaning from "./components/areas/Lisnasharragh";
-import OldparkDeaBinCleaning from "./components/areas/Oldpark";
-import OrmistonDeaBinCleaning from "./components/areas/Ormistong";
-import BalmoralDeaBinCleaning from "./components/areas/Balmoral";
-import TitanicDeaBinCleaning from "./components/areas/Titanic";
+import BlackMountainDeaBinCleaning from "./components/areas/BlackMountainDeaBinCleaning";
+import CastleDeaBinCleaning from "./components/areas/CastleDeaBinCleaning";
+import CourtDeaBinCleaning from "./components/areas/CourtDeaBinCleaning";
+import CollinDeaBinCleaning from "./components/areas/CollinDeaBinCleaning";
+import BotanicDeaBinCleaning from "./components/areas/BotanicDeaBinCleaning";
+import LisnasharraghDeaBinCleaning from "./components/areas/LisnasharraghDeaBinCleaning";
+import OldparkDeaBinCleaning from "./components/areas/OldparkDeaBinCleaning";
+import OrmistonDeaBinCleaning from "./components/areas/OrmistonDeaBinCleaning";
+import BalmoralDeaBinCleaning from "./components/areas/BalmoralDeaBinCleaning";
+import TitanicDeaBinCleaning from "./components/areas/TitanicDeaBinCleaning";
 
-// ================== QUICK CONFIG ==================
+/* ================== QUICK CONFIG ================== */
 const BUSINESS_NAME = "Bin Wash Guyz";
 const WHATSAPP_NUMBER = "+447533247375"; // international format
-const BOOKING_EMAIL = "binwashguyz@gmail.com"; // email for enquiries
+const BOOKING_EMAIL = "info@binwashguyz.co.uk"; // email for enquiries
 const PHONE_NUMBER = "07533247375"; // business phone number
 const BIN_OPTIONS = ["Household", "Recycling", "Food"];
+/* ================================================== */
 
-// ==================================================
-
+/* ========== ROUTER WRAPPER (EXPORT DEFAULT) ========== */
 export default function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Home page */}
+        <Route path="/" element={<HomeApp />} />
+
+        {/* Compass direction pages */}
+        <Route path="/north-belfast-bin-cleaning" element={<NorthBelfastBinCleaning />} />
+        <Route path="/south-belfast-bin-cleaning" element={<SouthBelfastBinCleaning />} />
+        <Route path="/east-belfast-bin-cleaning" element={<EastBelfastBinCleaning />} />
+        <Route path="/west-belfast-bin-cleaning" element={<WestBelfastBinCleaning />} />
+
+        {/* City centre districts */}
+        <Route path="/cathedral-quarter-bin-cleaning" element={<CathedralQuarterBinCleaning />} />
+        <Route path="/linen-quarter-bin-cleaning" element={<LinenQuarterBinCleaning />} />
+        <Route path="/titanic-quarter-bin-cleaning" element={<TitanicQuarterBinCleaning />} />
+        <Route path="/queens-quarter-bin-cleaning" element={<QueensQuarterBinCleaning />} />
+        <Route path="/gaeltacht-quarter-bin-cleaning" element={<GaeltachtQuarterBinCleaning />} />
+
+        {/* Suburbs & neighbourhoods */}
+        <Route path="/andersonstown-bin-cleaning" element={<AndersonstownBinCleaning />} />
+        <Route path="/ballyhackamore-bin-cleaning" element={<BallyhackamoreBinCleaning />} />
+        <Route path="/holywood-road-sydenham-bin-cleaning" element={<HolywoodRoadSydenhamBinCleaning />} />
+        <Route path="/malone-stranmillis-bin-cleaning" element={<MaloneStranmillisBinCleaning />} />
+        <Route path="/shankill-road-bin-cleaning" element={<ShankillRoadBinCleaning />} />
+        <Route path="/ormeau-road-bin-cleaning" element={<OrmeauRoadBinCleaning />} />
+        <Route path="/falls-road-bin-cleaning" element={<FallsRoadBinCleaning />} />
+        <Route path="/cavehill-fortwilliam-bin-cleaning" element={<CavehillFortwilliamBinCleaning />} />
+
+        {/* Council wards / DEAs */}
+        <Route path="/black-mountain-dea-bin-cleaning" element={<BlackMountainDeaBinCleaning />} />
+        <Route path="/castle-dea-bin-cleaning" element={<CastleDeaBinCleaning />} />
+        <Route path="/court-dea-bin-cleaning" element={<CourtDeaBinCleaning />} />
+        <Route path="/collin-dea-bin-cleaning" element={<CollinDeaBinCleaning />} />
+        <Route path="/botanic-dea-bin-cleaning" element={<BotanicDeaBinCleaning />} />
+        <Route path="/lisnasharragh-dea-bin-cleaning" element={<LisnasharraghDeaBinCleaning />} />
+        <Route path="/oldpark-dea-bin-cleaning" element={<OldparkDeaBinCleaning />} />
+        <Route path="/ormiston-dea-bin-cleaning" element={<OrmistonDeaBinCleaning />} />
+        <Route path="/balmoral-dea-bin-cleaning" element={<BalmoralDeaBinCleaning />} />
+        <Route path="/titanic-dea-bin-cleaning" element={<TitanicDeaBinCleaning />} />
+      </Routes>
+    </Router>
+  );
+}
+
+/* ========== HOME (YOUR EXISTING UI) ========== */
+function HomeApp() {
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
