@@ -445,6 +445,30 @@ function Footer() {
   );
 }
 
+function HomeApp() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="min-h-screen bg-[#000000] text-[#f0e0b0]">
+      <Header onBook={() => setOpen(true)} />
+      <Hero />
+      <Sections />
+      <CTA />
+      <Footer />
+
+      {/* Spacer so the fixed mobile bar doesn't cover the footer */}
+      <div
+        className="md:hidden"
+        style={{ height: "calc(3.5rem + env(safe-area-inset-bottom))" }}
+        aria-hidden="true"
+      />
+
+      <MobileActionBar onBook={() => setOpen(true)} />
+      {open && <BookingModal onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
+
+
 /* ---------------- Mobile Action Bar ---------------- */
 function MobileActionBar({ onBook }) {
   const minimalMsg = encodeURIComponent(
