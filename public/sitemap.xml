@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
+  <url>
+    <loc>https://binwashguyz.com/</loc>
+    <lastmod>2025-09-07</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Compass Directions -->
+  <url><loc>https://binwashguyz.com/north-belfast-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/south-belfast-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/east-belfast-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/west-belfast-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+
+  <!-- City Centre Districts -->
+  <url><loc>https://binwashguyz.com/cathedral-quarter-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/linen-quarter-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/titanic-quarter-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/queens-quarter-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/gaeltacht-quarter-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+
+  <!-- Suburbs & Neighbourhoods -->
+  <url><loc>https://binwashguyz.com/andersonstown-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/ballyhackamore-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/holywood-road-sydenham-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/malone-stranmillis-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/shankill-road-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/ormeau-road-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/falls-road-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/cavehill-fortwilliam-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+
+  <!-- Council Wards / DEAs -->
+  <url><loc>https://binwashguyz.com/black-mountain-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/castle-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/court-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/collin-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/botanic-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/lisnasharragh-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/oldpark-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/ormiston-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/balmoral-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+  <url><loc>https://binwashguyz.com/titanic-dea-bin-cleaning</loc><lastmod>2025-09-07</lastmod><priority>0.8</priority></url>
+</urlset>
