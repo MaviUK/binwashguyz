@@ -1,1 +1,4 @@
+User-agent: *
+Allow: /
+
 Sitemap: https://binwashguyz.com/sitemap.xml
