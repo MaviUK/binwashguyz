@@ -575,30 +575,34 @@ function BookingModal({ onClose }) {
     buildMessage()
   )}`;
 
-  async function handleEmail(e) {
-    e.preventDefault();
-    if (!validate()) return;
-    try {
-      setSending(true);
-      const res = await fetch("/.netlify/functions/sendBookingEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          business: BUSINESS_NAME,
-          to: BOOKING_EMAIL,
-          ...form,
-          bins: form.bins.join(", "),
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to send");
-      alert("Booking email sent!");
-      onClose();
-    } catch (err) {
-      alert("Error sending email. Please try again.");
-    } finally {
-      setSending(false);
+async function handleEmail(e) {
+  e.preventDefault();
+  if (!validate()) return;
+  try {
+    setSending(true);
+    const res = await fetch("/.netlify/functions/sendBookingEmail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        business: BUSINESS_NAME,
+        to: BOOKING_EMAIL,
+        ...form,
+        bins: form.bins.join(", "),
+      }),
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`${res.status} ${res.statusText}\n${errText}`);
     }
+    alert("Booking email sent!");
+    onClose();
+  } catch (err) {
+    alert(`Error sending email:\n${String(err).slice(0, 800)}`);
+  } finally {
+    setSending(false);
   }
+}
+
 
   function handleWhatsApp() {
     if (!validate()) return;
