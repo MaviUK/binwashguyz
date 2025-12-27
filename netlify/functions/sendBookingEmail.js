@@ -62,13 +62,14 @@ exports.handler = async (event) => {
     });
 
     if (!resp.ok) {
-      const errText = await resp.text();
-      console.error('Resend error:', errText);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ ok: false, error: errText }),
-      };
-    }
+  const errText = await resp.text();
+  console.error('Resend error:', errText);
+  return {
+    statusCode: resp.status,
+    body: JSON.stringify({ ok: false, error: errText }),
+  };
+}
+
 
     const json = await resp.json();
     return {
