@@ -28,10 +28,21 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
+
+    // Basic guard (your UI already enforces this, but it's cheap to double-check)
+    if (!data.name || (!data.email && !data.phone) || !data.message) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ ok: false, error: 'Missing required fields.' }),
+      };
+    }
+
     const to = Array.isArray(data.to) ? data.to : [data.to || 'binwashguyz@gmail.com'];
 
     const payload = {
-      from: 'Bin Wash Guyz <onboarding@resend.dev>', // swap to verified domain later
+      // After verifying your domain in Resend, switch to e.g.:
+      // from: 'Bin Wash Guyz <noreply@binwashguyz.co.uk>',
+      from: 'Bin Wash Guyz <onboarding@resend.dev>',
       to,
       subject: 'New Website Contact Enquiry',
       text: buildText(data),
@@ -50,7 +61,8 @@ exports.handler = async (event) => {
     if (!resp.ok) {
       const errText = await resp.text();
       console.error('Resend error:', errText);
-      return { statusCode: 500, body: JSON.stringify({ ok: false, error: errText }) };
+      // Return the real status + message so the frontend can show it
+      return { statusCode: resp.status, body: JSON.stringify({ ok: false, error: errText }) };
     }
 
     const json = await resp.json();
