@@ -1,0 +1,70 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #07130d;
+  color: #f5fff8;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.hero {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  background: #102418;
+  border: 1px solid #244d35;
+  border-radius: 24px;
+  padding: 32px;
+}
+
+.eyebrow {
+  color: #7cff9b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+h1 {
+  font-size: clamp(36px, 8vw, 72px);
+  line-height: 0.95;
+  margin: 0 0 16px;
+}
+
+button {
+  margin-top: 20px;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 22px;
+  background: #7cff9b;
+  color: #07130d;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fixtures {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+}
+
+.fixture-card {
+  background: #ffffff;
+  color: #07130d;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.error {
+  color: #ff9b9b;
+  font-weight: 700;
+}
