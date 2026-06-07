@@ -3,16 +3,20 @@ export async function handler(event) {
     const apiKey = process.env.FOOTBALL_DATA_API_KEY
 
     if (!apiKey) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Missing FOOTBALL_DATA_API_KEY' }),
-      }
+      return jsonResponse(500, {
+        error: 'Missing FOOTBALL_DATA_API_KEY. Add it in Netlify environment variables.',
+      })
     }
 
     const competition = event.queryStringParameters?.competition || 'PL'
-    const status = event.queryStringParameters?.status || 'SCHEDULED'
+    const dateFrom = event.queryStringParameters?.dateFrom
+    const dateTo = event.queryStringParameters?.dateTo
 
-    const url = `https://api.football-data.org/v4/competitions/${competition}/matches?status=${status}`
+    const params = new URLSearchParams({ status: 'SCHEDULED' })
+    if (dateFrom) params.set('dateFrom', dateFrom)
+    if (dateTo) params.set('dateTo', dateTo)
+
+    const url = `https://api.football-data.org/v4/competitions/${competition}/matches?${params.toString()}`
 
     const response = await fetch(url, {
       headers: {
@@ -23,25 +27,28 @@ export async function handler(event) {
     const data = await response.json()
 
     if (!response.ok) {
-      return {
-        statusCode: response.status,
-        body: JSON.stringify(data),
-      }
+      return jsonResponse(response.status, data)
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        competition,
-        status,
-        count: data.count,
-        matches: data.matches,
-      }),
-    }
+    return jsonResponse(200, {
+      provider: 'football-data.org',
+      competition,
+      status: 'SCHEDULED',
+      count: data.count || data.matches?.length || 0,
+      matches: data.matches || [],
+    })
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    }
+    return jsonResponse(500, { error: error.message })
+  }
+}
+
+function jsonResponse(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+    },
+    body: JSON.stringify(body),
   }
 }
