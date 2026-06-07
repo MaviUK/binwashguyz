@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import AuthPanel from './components/AuthPanel'
 import './App.css'
 
 const COMPETITIONS = [
@@ -113,6 +114,8 @@ function App() {
         {error && <p className="error">{error}</p>}
         {lastLoaded && <p className="loaded-note">Last loaded: {lastLoaded}</p>}
       </section>
+
+      <AuthPanel />
 
       <section className="rules-grid" aria-label="Game rules summary">
         <article>
