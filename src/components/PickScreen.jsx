@@ -3,7 +3,7 @@ import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 import './PickScreen.css'
 
-const PICK_SCREEN_VERSION = 'week-fixtures-v1'
+const PICK_SCREEN_VERSION = 'server-save-v1'
 
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
@@ -110,54 +110,36 @@ export default function PickScreen() {
       }
 
       const selectedFixtures = fixtures.filter((fixture) => selectedIds.includes(String(fixture.id)))
-
-      const { data: entry, error: entryError } = await supabase
-        .from('fantasy_entries')
-        .upsert(
-          {
-            fantasy_gameweek_id: gameweek.id,
-            user_id: userId,
-            assigned_side: assignedSide,
-            status: 'submitted',
-            updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: 'fantasy_gameweek_id,user_id',
-          }
-        )
-        .select()
-        .single()
-
-      if (entryError) throw entryError
-      if (!entry?.id) throw new Error('Could not save your entry.')
-
-      const { error: clearError } = await supabase
-        .from('fantasy_entry_picks')
-        .delete()
-        .eq('entry_id', entry.id)
-
-      if (clearError) throw clearError
-
-      const rows = selectedFixtures.map((fixture) => {
+      const picks = selectedFixtures.map((fixture) => {
         const isHome = assignedSide === 'home'
 
         return {
-          entry_id: entry.id,
-          real_fixture_id: fixture.id,
-          selected_team_id: isHome ? fixture.home_team_id : fixture.away_team_id,
-          selected_team_name: isHome ? fixture.home_team_name : fixture.away_team_name,
-          selected_side: assignedSide,
+          realFixtureId: fixture.id,
+          selectedTeamId: isHome ? fixture.home_team_id : fixture.away_team_id,
+          selectedTeamName: isHome ? fixture.home_team_name : fixture.away_team_name,
         }
       })
 
-      const { data: savedPicks, error: picksError } = await supabase
-        .from('fantasy_entry_picks')
-        .insert(rows)
-        .select()
+      const response = await fetch('/.netlify/functions/saveEntryPicks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          gameweekId: gameweek.id,
+          assignedSide,
+          picks,
+        }),
+      })
 
-      if (picksError) throw picksError
+      const data = await response.json()
 
-      setMessage(`Picks submitted. ${savedPicks?.length || 0} teams saved.`)
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Could not save picks.')
+      }
+
+      setMessage(`Picks submitted. ${data.pickCount || 0} teams saved.`)
     } catch (err) {
       setError(err.message)
     } finally {
