@@ -1,0 +1,53 @@
+.league-table-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 14px 0;
+  border-radius: 18px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 255, 248, 0.86);
+  font-weight: 800;
+}
+
+.league-table-pager-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.league-table-pager label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(245, 255, 248, 0.86);
+  font-size: 0.82rem;
+}
+
+.league-table-pager input {
+  width: 86px;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+}
+
+.compact-button {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 780px) {
+  .league-table-pager,
+  .league-table-pager-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .league-table-pager-controls button,
+  .league-table-pager label,
+  .league-table-pager input {
+    width: 100%;
+  }
+}
