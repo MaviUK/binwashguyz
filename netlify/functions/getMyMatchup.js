@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import ws from 'ws'
 
 export async function handler(event) {
   try {
@@ -16,7 +17,11 @@ export async function handler(event) {
       return jsonResponse(400, { error: 'Missing userId.' })
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      realtime: {
+        transport: ws,
+      },
+    })
 
     const { data: gameweek, error: gameweekError } = await supabase
       .from('fantasy_gameweeks')
