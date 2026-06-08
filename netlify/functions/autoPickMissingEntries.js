@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import WebSocket from 'ws'
+
+globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') {
@@ -6,6 +8,7 @@ export async function handler(event) {
   }
 
   try {
+    const { createClient } = await import('@supabase/supabase-js')
     const supabaseUrl = process.env.VITE_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -16,7 +19,16 @@ export async function handler(event) {
     const payload = JSON.parse(event.body || '{}')
     const gameweekNumber = Number(payload.gameweekNumber || 1)
     const force = Boolean(payload.force)
-    const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      realtime: {
+        transport: WebSocket,
+      },
+    })
 
     const { data: gameweek, error: gameweekError } = await supabase
       .from('fantasy_gameweeks')
