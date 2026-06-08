@@ -1,5 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
-import ws from 'ws'
+import WebSocket from 'ws'
+
+globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
 const DEFAULT_LEAGUE_NAME = 'Main League'
 const DEFAULT_SEASON_NAME = '2026/27'
@@ -10,6 +11,7 @@ export async function handler(event) {
   }
 
   try {
+    const { createClient } = await import('@supabase/supabase-js')
     const supabaseUrl = process.env.VITE_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -32,8 +34,12 @@ export async function handler(event) {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
       realtime: {
-        transport: ws,
+        transport: WebSocket,
       },
     })
 
@@ -73,9 +79,9 @@ export async function handler(event) {
 
     if (gameweekError) throw gameweekError
 
-    const realFixtures = fixtures.map((fixture) => ({
-      provider: 'football-data.org',
-      provider_fixture_id: String(fixture.id),
+    const realFixtures = fixtures.map((fixture, index) => ({
+      provider: 'season-replay',
+      provider_fixture_id: `${payload.competition || fixture.competition?.code || 'CSV'}-${gameweekNumber}-${index + 1}-${fixture.id}`,
       competition_code: payload.competition || fixture.competition?.code || 'UNKNOWN',
       competition_name: payload.competitionName || fixture.competition?.name || null,
       season: fixture.season?.startDate || DEFAULT_SEASON_NAME,
@@ -100,6 +106,13 @@ export async function handler(event) {
 
     if (fixturesError) throw fixturesError
 
+    const { error: clearLinksError } = await supabase
+      .from('gameweek_fixtures')
+      .delete()
+      .eq('fantasy_gameweek_id', gameweek.id)
+
+    if (clearLinksError) throw clearLinksError
+
     const gameweekFixtures = savedRealFixtures.map((fixture, index) => ({
       fantasy_gameweek_id: gameweek.id,
       real_fixture_id: fixture.id,
@@ -108,9 +121,7 @@ export async function handler(event) {
 
     const { error: gameweekFixturesError } = await supabase
       .from('gameweek_fixtures')
-      .upsert(gameweekFixtures, {
-        onConflict: 'fantasy_gameweek_id,real_fixture_id',
-      })
+      .insert(gameweekFixtures)
 
     if (gameweekFixturesError) throw gameweekFixturesError
 
@@ -119,6 +130,7 @@ export async function handler(event) {
       gameweekId: gameweek.id,
       gameweekNumber,
       fixtureCount: savedRealFixtures.length,
+      replacedExistingFixtures: true,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
