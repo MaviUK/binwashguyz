@@ -1,10 +1,5 @@
-import WebSocket from 'ws'
-
-globalThis.WebSocket = globalThis.WebSocket || WebSocket
-
 export async function handler(event) {
   try {
-    const { createClient } = await import('@supabase/supabase-js')
     const supabaseUrl = process.env.VITE_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -19,36 +14,24 @@ export async function handler(event) {
       return jsonResponse(400, { error: 'Missing userId.' })
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-      realtime: {
-        transport: WebSocket,
-      },
+    const gameweeks = await supabaseGet(supabaseUrl, serviceRoleKey, 'fantasy_gameweeks', {
+      select: 'id,gameweek_number,deadline_at,status',
+      gameweek_number: `eq.${gameweekNumber}`,
+      order: 'created_at.desc',
+      limit: '1',
     })
 
-    const { data: gameweek, error: gameweekError } = await supabase
-      .from('fantasy_gameweeks')
-      .select('id, gameweek_number, deadline_at, status')
-      .eq('gameweek_number', gameweekNumber)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (gameweekError) throw gameweekError
+    const gameweek = gameweeks[0]
     if (!gameweek) return jsonResponse(404, { error: `Gameweek ${gameweekNumber} not found.` })
 
-    const { data: matchup, error: matchupError } = await supabase
-      .from('fantasy_matches')
-      .select('id, home_user_id, away_user_id, home_score, away_score, result, status')
-      .eq('fantasy_gameweek_id', gameweek.id)
-      .or(`home_user_id.eq.${userId},away_user_id.eq.${userId}`)
-      .maybeSingle()
+    const matchups = await supabaseGet(supabaseUrl, serviceRoleKey, 'fantasy_matches', {
+      select: 'id,home_user_id,away_user_id,home_score,away_score,result,status',
+      fantasy_gameweek_id: `eq.${gameweek.id}`,
+      or: `(home_user_id.eq.${userId},away_user_id.eq.${userId})`,
+      limit: '1',
+    })
 
-    if (matchupError) throw matchupError
-
+    const matchup = matchups[0]
     if (!matchup) {
       return jsonResponse(404, { error: 'No matchup found for this user yet. Generate matchups first.' })
     }
@@ -56,21 +39,42 @@ export async function handler(event) {
     const assignedSide = matchup.home_user_id === userId ? 'home' : 'away'
     const opponentUserId = assignedSide === 'home' ? matchup.away_user_id : matchup.home_user_id
 
-    const { data: opponentProfile } = await supabase
-      .from('profiles')
-      .select('id, team_name, username')
-      .eq('id', opponentUserId)
-      .maybeSingle()
+    const profiles = await supabaseGet(supabaseUrl, serviceRoleKey, 'profiles', {
+      select: 'id,team_name,username',
+      id: `eq.${opponentUserId}`,
+      limit: '1',
+    })
 
     return jsonResponse(200, {
       gameweek,
       matchup,
       assignedSide,
-      opponent: opponentProfile,
+      opponent: profiles[0] || null,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
   }
+}
+
+async function supabaseGet(supabaseUrl, serviceRoleKey, table, params) {
+  const url = new URL(`${supabaseUrl}/rest/v1/${table}`)
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value))
+
+  const response = await fetch(url, {
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      Accept: 'application/json',
+    },
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new Error(data?.message || data?.hint || data?.details || `Supabase REST request failed for ${table}`)
+  }
+
+  return Array.isArray(data) ? data : []
 }
 
 function jsonResponse(statusCode, body) {
