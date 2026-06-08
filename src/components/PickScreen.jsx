@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 import './PickScreen.css'
 
-const PICK_SCREEN_VERSION = 'auto-next-week-v1'
+const PICK_SCREEN_VERSION = 'auto-load-current-week-v1'
 
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
@@ -30,6 +30,7 @@ export default function PickScreen() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const autoLoadedRef = useRef(false)
 
   async function getUserId() {
     if (!supabaseConfigured) throw new Error('Supabase is not configured yet.')
@@ -68,21 +69,20 @@ export default function PickScreen() {
 
     const matchupGameweekIds = new Set((matchups || []).map((item) => item.fantasy_gameweek_id))
     const submittedGameweekIds = new Set((entries || []).map((item) => item.fantasy_gameweek_id))
-    const unscoredGameweeks = gameweeks.filter((item) => item.status !== 'scored')
 
-    const firstUnpickedWithMatchup = unscoredGameweeks.find(
-      (item) => matchupGameweekIds.has(item.id) && !submittedGameweekIds.has(item.id)
+    const playableGameweeks = gameweeks.filter(
+      (item) => item.status !== 'scored' && matchupGameweekIds.has(item.id) && !submittedGameweekIds.has(item.id)
     )
 
-    if (firstUnpickedWithMatchup) return firstUnpickedWithMatchup.gameweek_number
+    if (playableGameweeks[0]) return playableGameweeks[0].gameweek_number
 
-    const firstOpenWithMatchup = unscoredGameweeks.find((item) => matchupGameweekIds.has(item.id))
-    if (firstOpenWithMatchup) return firstOpenWithMatchup.gameweek_number
+    const nextWithMatchup = gameweeks.find(
+      (item) => matchupGameweekIds.has(item.id) && item.status !== 'scored'
+    )
 
-    const firstUnscored = unscoredGameweeks[0]
-    if (firstUnscored) return firstUnscored.gameweek_number
+    if (nextWithMatchup) return nextWithMatchup.gameweek_number
 
-    throw new Error('All imported gameweeks are complete.')
+    throw new Error('No playable gameweek found. If the season has been imported, generate matchups for the next gameweek.')
   }
 
   async function loadGameweekAndMatchup(nextGameweekNumber = gameweekNumber, options = {}) {
@@ -117,10 +117,10 @@ export default function PickScreen() {
     }
   }
 
-  async function loadCurrentGameweek() {
+  async function loadCurrentGameweek(options = {}) {
     setLoading(true)
     setError('')
-    setMessage('')
+    if (!options.keepMessage) setMessage('')
     setSelectedIds([])
     setMatchup(null)
     setPlayer(null)
@@ -130,7 +130,7 @@ export default function PickScreen() {
       const userId = await getUserId()
       const currentGameweekNumber = await findCurrentGameweekNumber(userId)
       await loadGameweekAndMatchup(currentGameweekNumber, {
-        successMessage: `Loaded current Gameweek ${currentGameweekNumber}.`,
+        successMessage: options.successMessage || `Loaded current Gameweek ${currentGameweekNumber}.`,
       })
     } catch (err) {
       setError(err.message)
@@ -139,6 +139,12 @@ export default function PickScreen() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (autoLoadedRef.current) return
+    autoLoadedRef.current = true
+    loadCurrentGameweek({ successMessage: '' })
+  }, [])
 
   function togglePick(fixtureId) {
     const id = String(fixtureId)
@@ -209,11 +215,10 @@ export default function PickScreen() {
         throw new Error(data.message || data.error || 'Could not save picks.')
       }
 
-      const nextGameweekNumber = Number(gameweek.gameweek_number) + 1
       setSaving(false)
-      await loadGameweekAndMatchup(nextGameweekNumber, {
+      await loadCurrentGameweek({
         keepMessage: true,
-        successMessage: `Picks submitted. ${data.pickCount || 0} teams saved. Loaded Gameweek ${nextGameweekNumber}.`,
+        successMessage: `Picks submitted. ${data.pickCount || 0} teams saved. Loaded the next playable gameweek.`,
       })
     } catch (err) {
       setError(err.message)
@@ -248,7 +253,7 @@ export default function PickScreen() {
             onChange={(event) => setGameweekNumber(event.target.value)}
           />
         </label>
-        <button type="button" onClick={loadCurrentGameweek} disabled={loading}>
+        <button type="button" onClick={() => loadCurrentGameweek()} disabled={loading}>
           {loading ? 'Loading...' : 'Load current week'}
         </button>
         <button type="button" className="secondary-button" onClick={() => loadGameweekAndMatchup()} disabled={loading}>
