@@ -67,6 +67,8 @@ input:focus-visible {
 .league-panel,
 .builder-panel,
 .pick-panel,
+.scoring-panel,
+.table-panel,
 .rules-grid article {
   border: 1px solid rgba(124, 255, 155, 0.22);
   background: rgba(11, 31, 20, 0.88);
@@ -143,6 +145,18 @@ label {
   letter-spacing: 0.08em;
 }
 
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
 select,
 input {
   width: 100%;
@@ -198,7 +212,9 @@ select {
 .auth-panel,
 .league-panel,
 .builder-panel,
-.pick-panel {
+.pick-panel,
+.scoring-panel,
+.table-panel {
   border-radius: 28px;
   padding: 24px;
   margin: 18px 0;
@@ -280,6 +296,35 @@ select {
 
 .pick-list {
   margin: 18px 0;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #07130d;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(7, 19, 13, 0.12);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #dcffe5;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .rules-grid {
