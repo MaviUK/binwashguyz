@@ -113,6 +113,7 @@ function buildTestFixtures() {
 }
 
 function App() {
+  const [appMode, setAppMode] = useState('player')
   const [competition, setCompetition] = useState('PL')
   const [competitionNameOverride, setCompetitionNameOverride] = useState('')
   const [builderGameweekNumber, setBuilderGameweekNumber] = useState(1)
@@ -146,6 +147,7 @@ function App() {
     setMatches(seasonMatches)
     setBuilderGameweekNumber(gameweekNumber)
     setLastLoaded(`${new Date().toLocaleString('en-GB')} - ${sourceName} Gameweek ${gameweekNumber}`)
+    setAppMode('admin')
   }
 
   async function loadMatches(nextMode = mode) {
@@ -185,64 +187,142 @@ function App() {
           picks 3 eligible teams, and scores their combined real-life goal difference.
         </p>
 
-        <div className="controls">
-          <label>
-            Competition
-            <select value={competition} onChange={(event) => setCompetition(event.target.value)}>
-              {COMPETITIONS.map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="button-row">
-            <button type="button" onClick={() => loadMatches('SCHEDULED')} disabled={loading}>
-              {loading && mode === 'SCHEDULED' ? 'Loading...' : 'Load upcoming fixtures'}
-            </button>
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => loadMatches('FINISHED')}
-              disabled={loading}
-            >
-              {loading && mode === 'FINISHED' ? 'Loading...' : 'Load latest results'}
-            </button>
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={loadTestFixtures}
-              disabled={loading}
-            >
-              Load test fixtures
-            </button>
-          </div>
+        <div className="mode-switch" aria-label="Choose app mode">
+          <button
+            type="button"
+            className={appMode === 'player' ? 'active' : ''}
+            onClick={() => setAppMode('player')}
+          >
+            Player view
+          </button>
+          <button
+            type="button"
+            className={appMode === 'admin' ? 'active' : ''}
+            onClick={() => setAppMode('admin')}
+          >
+            Admin view
+          </button>
         </div>
 
-        {error && <p className="error">{error}</p>}
-        {lastLoaded && <p className="loaded-note">Last loaded: {lastLoaded}</p>}
+        {appMode === 'player' ? (
+          <div className="flow-note">
+            Sign in, load your matchup, pick 3 eligible teams, then check the table once the gameweek is scored.
+          </div>
+        ) : (
+          <div className="flow-note">
+            Admin setup: upload fixtures, save a gameweek, generate matchups, auto-pick missed users, then score results.
+          </div>
+        )}
       </section>
 
       <AuthPanel />
 
-      <SeasonCsvImporter onLoadGameweek={handleSeasonGameweekLoad} />
+      {appMode === 'player' && (
+        <>
+          <PickScreen />
+          <LeagueTable />
+        </>
+      )}
 
-      <LeagueControls />
+      {appMode === 'admin' && (
+        <>
+          <section className="admin-tools-panel">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow small">Admin tools</p>
+                <h2>Fixture source</h2>
+              </div>
+            </div>
 
-      <GameweekBuilder
-        matches={matches}
-        competition={competition}
-        competitionName={competitionName}
-        gameweekNumber={builderGameweekNumber}
-        onGameweekNumberChange={setBuilderGameweekNumber}
-      />
+            <div className="controls compact-controls">
+              <label>
+                Competition
+                <select value={competition} onChange={(event) => setCompetition(event.target.value)}>
+                  {COMPETITIONS.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-      <PickScreen />
+              <div className="button-row">
+                <button type="button" onClick={() => loadMatches('SCHEDULED')} disabled={loading}>
+                  {loading && mode === 'SCHEDULED' ? 'Loading...' : 'Load upcoming fixtures'}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => loadMatches('FINISHED')}
+                  disabled={loading}
+                >
+                  {loading && mode === 'FINISHED' ? 'Loading...' : 'Load latest results'}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={loadTestFixtures}
+                  disabled={loading}
+                >
+                  Load test fixtures
+                </button>
+              </div>
+            </div>
 
-      <ScoringPanel />
+            {error && <p className="error">{error}</p>}
+            {lastLoaded && <p className="loaded-note">Last loaded: {lastLoaded}</p>}
+          </section>
 
-      <LeagueTable />
+          <SeasonCsvImporter onLoadGameweek={handleSeasonGameweekLoad} />
+
+          <LeagueControls />
+
+          <GameweekBuilder
+            matches={matches}
+            competition={competition}
+            competitionName={competitionName}
+            gameweekNumber={builderGameweekNumber}
+            onGameweekNumberChange={setBuilderGameweekNumber}
+          />
+
+          <ScoringPanel />
+
+          <LeagueTable />
+
+          <section className="fixtures">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow small">{mode === 'FINISHED' ? 'Results' : 'Fixtures'}</p>
+                <h2>{competitionName}</h2>
+              </div>
+              <p>{matches.length} matches</p>
+            </div>
+
+            {matches.length === 0 && !loading && !error && (
+              <div className="empty-state">
+                Choose a competition, then load upcoming fixtures, latest results, test fixtures, or upload a season CSV.
+              </div>
+            )}
+
+            <div className="match-list">
+              {matches.map((match) => (
+                <article className="fixture-card" key={match.id}>
+                  <div className="team-row">
+                    <strong>{match.homeTeam?.name || 'Home team TBC'}</strong>
+                    <span className="score-pill">{getScoreText(match)}</span>
+                    <strong>{match.awayTeam?.name || 'Away team TBC'}</strong>
+                  </div>
+                  <div className="meta-row">
+                    <span>{formatKickoff(match.utcDate)}</span>
+                    <span>{match.competition?.name || competitionName}</span>
+                    <span>{match.status}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
       <section className="rules-grid" aria-label="Game rules summary">
         <article>
@@ -260,39 +340,6 @@ function App() {
           <h2>Pick 3</h2>
           <p>Each user chooses 3 teams and scores the combined goal difference.</p>
         </article>
-      </section>
-
-      <section className="fixtures">
-        <div className="panel-header">
-          <div>
-            <p className="eyebrow small">{mode === 'FINISHED' ? 'Results' : 'Fixtures'}</p>
-            <h2>{competitionName}</h2>
-          </div>
-          <p>{matches.length} matches</p>
-        </div>
-
-        {matches.length === 0 && !loading && !error && (
-          <div className="empty-state">
-            Choose a competition, then load upcoming fixtures, latest results, test fixtures, or upload a season CSV.
-          </div>
-        )}
-
-        <div className="match-list">
-          {matches.map((match) => (
-            <article className="fixture-card" key={match.id}>
-              <div className="team-row">
-                <strong>{match.homeTeam?.name || 'Home team TBC'}</strong>
-                <span className="score-pill">{getScoreText(match)}</span>
-                <strong>{match.awayTeam?.name || 'Away team TBC'}</strong>
-              </div>
-              <div className="meta-row">
-                <span>{formatKickoff(match.utcDate)}</span>
-                <span>{match.competition?.name || competitionName}</span>
-                <span>{match.status}</span>
-              </div>
-            </article>
-          ))}
-        </div>
       </section>
     </main>
   )
