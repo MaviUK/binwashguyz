@@ -65,6 +65,7 @@ input:focus-visible {
 .fixtures,
 .auth-panel,
 .builder-panel,
+.pick-panel,
 .rules-grid article {
   border: 1px solid rgba(124, 255, 155, 0.22);
   background: rgba(11, 31, 20, 0.88);
@@ -194,7 +195,8 @@ select {
 }
 
 .auth-panel,
-.builder-panel {
+.builder-panel,
+.pick-panel {
   border-radius: 28px;
   padding: 24px;
   margin: 18px 0;
@@ -236,12 +238,14 @@ select {
   color: #07130d;
 }
 
-.builder-list {
+.builder-list,
+.pick-list {
   display: grid;
   gap: 10px;
 }
 
-.builder-fixture {
+.builder-fixture,
+.pick-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -255,15 +259,21 @@ select {
   text-align: left;
 }
 
-.builder-fixture small {
+.builder-fixture small,
+.pick-card small {
   color: rgba(7, 19, 13, 0.62);
   font-weight: 800;
   white-space: nowrap;
 }
 
-.builder-fixture.selected {
+.builder-fixture.selected,
+.pick-card.selected {
   border-color: #7cff9b;
   background: #dcffe5;
+}
+
+.pick-list {
+  margin: 18px 0;
 }
 
 .rules-grid {
@@ -392,7 +402,8 @@ select {
 
   .panel-header,
   .auth-header,
-  .builder-fixture {
+  .builder-fixture,
+  .pick-card {
     align-items: flex-start;
     flex-direction: column;
   }
