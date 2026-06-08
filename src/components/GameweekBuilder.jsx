@@ -12,22 +12,31 @@ function formatKickoff(utcDate) {
   })
 }
 
-export default function GameweekBuilder({ matches, competition, competitionName }) {
-  const [gameweekNumber, setGameweekNumber] = useState(1)
+export default function GameweekBuilder({
+  matches,
+  competition,
+  competitionName,
+  gameweekNumber,
+  onGameweekNumberChange,
+}) {
   const [selectedIds, setSelectedIds] = useState([])
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  const scheduledMatches = useMemo(
+  const availableMatches = useMemo(
     () => matches.filter((match) => match.status === 'SCHEDULED' || match.status === 'TIMED'),
     [matches]
   )
 
   const selectedMatches = useMemo(
-    () => scheduledMatches.filter((match) => selectedIds.includes(String(match.id))),
-    [scheduledMatches, selectedIds]
+    () => availableMatches.filter((match) => selectedIds.includes(String(match.id))),
+    [availableMatches, selectedIds]
   )
+
+  function setGameweekNumber(value) {
+    onGameweekNumberChange?.(value)
+  }
 
   function toggleFixture(matchId) {
     const id = String(matchId)
@@ -47,6 +56,12 @@ export default function GameweekBuilder({ matches, competition, competitionName 
 
       return [...current, id]
     })
+  }
+
+  function selectAllShownFixtures() {
+    setError('')
+    setMessage('')
+    setSelectedIds(availableMatches.slice(0, 10).map((match) => String(match.id)))
   }
 
   async function saveGameweek() {
@@ -107,20 +122,23 @@ export default function GameweekBuilder({ matches, competition, competitionName 
             onChange={(event) => setGameweekNumber(event.target.value)}
           />
         </label>
+        <button type="button" className="secondary-button" onClick={selectAllShownFixtures} disabled={availableMatches.length < 10}>
+          Select shown 10
+        </button>
         <button type="button" onClick={saveGameweek} disabled={saving || selectedIds.length !== 10}>
           {saving ? 'Saving...' : 'Save selected 10 fixtures'}
         </button>
       </div>
 
-      {scheduledMatches.length === 0 && (
+      {availableMatches.length === 0 && (
         <div className="empty-state">
-          Load upcoming fixtures first. Then choose 10 fixtures for this fantasy gameweek.
+          Load fixtures first. For a season replay, upload the CSV and load a gameweek above.
         </div>
       )}
 
-      {scheduledMatches.length > 0 && (
+      {availableMatches.length > 0 && (
         <div className="builder-list">
-          {scheduledMatches.map((match) => {
+          {availableMatches.map((match) => {
             const id = String(match.id)
             const selected = selectedIds.includes(id)
 
