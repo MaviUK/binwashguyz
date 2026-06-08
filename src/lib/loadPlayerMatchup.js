@@ -23,11 +23,12 @@ export async function loadPlayerMatchupFromSupabase(supabase, userId, gameweekNu
   const assignedSide = matchup.home_user_id === userId ? 'home' : 'away'
   const opponentUserId = assignedSide === 'home' ? matchup.away_user_id : matchup.home_user_id
 
-  const { data: opponent } = await supabase
+  const { data: profiles } = await supabase
     .from('profiles')
     .select('id, team_name, username')
-    .eq('id', opponentUserId)
-    .maybeSingle()
+    .in('id', [userId, opponentUserId])
+
+  const profileMap = new Map((profiles || []).map((profile) => [profile.id, profile]))
 
   const { data: fixtureLinks, error: fixturesError } = await supabase
     .from('gameweek_fixtures')
@@ -41,7 +42,8 @@ export async function loadPlayerMatchupFromSupabase(supabase, userId, gameweekNu
     gameweek,
     matchup,
     assignedSide,
-    opponent: opponent || null,
+    player: profileMap.get(userId) || null,
+    opponent: profileMap.get(opponentUserId) || null,
     fixtures: (fixtureLinks || []).map((item) => ({
       displayOrder: item.display_order,
       ...item.real_fixtures,
