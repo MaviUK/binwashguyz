@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-import ws from 'ws'
+import WebSocket from 'ws'
+
+globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
 export async function handler(event) {
   try {
@@ -18,8 +20,12 @@ export async function handler(event) {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
       realtime: {
-        transport: ws,
+        transport: WebSocket,
       },
     })
 
