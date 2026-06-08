@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 
+const PICK_SCREEN_VERSION = 'direct-picks-v3'
+
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
 
@@ -145,7 +147,7 @@ export default function PickScreen() {
     <section className="pick-panel">
       <div className="panel-header">
         <div>
-          <p className="eyebrow small">Player picks</p>
+          <p className="eyebrow small">Player picks - {PICK_SCREEN_VERSION}</p>
           <h2>Choose your 3 teams</h2>
         </div>
         <p>{selectedIds.length}/3 picked</p>
@@ -163,7 +165,7 @@ export default function PickScreen() {
           />
         </label>
         <button type="button" onClick={loadGameweekAndMatchup} disabled={loading}>
-          {loading ? 'Loading...' : 'Load my matchup'}
+          {loading ? 'Loading...' : 'Load direct matchup'}
         </button>
       </div>
 
