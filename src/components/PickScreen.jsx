@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
+import './PickScreen.css'
 
 const PICK_SCREEN_VERSION = 'week-fixtures-v1'
 
