@@ -3,6 +3,7 @@ import { supabase, supabaseConfigured } from '../lib/supabase'
 
 export default function LeagueControls() {
   const [gameweekNumber, setGameweekNumber] = useState(1)
+  const [demoCount, setDemoCount] = useState(8)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -46,6 +47,32 @@ export default function LeagueControls() {
     }
   }
 
+  async function createDemoUsers() {
+    setLoading(true)
+    setMessage('')
+    setError('')
+
+    try {
+      const response = await fetch('/.netlify/functions/createDemoUsers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: Number(demoCount) }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Could not create demo users')
+      }
+
+      setMessage(`Created or updated ${data.count} demo users. Demo password: ${data.demoPassword}`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function generateMatchups() {
     setLoading(true)
     setMessage('')
@@ -73,6 +100,32 @@ export default function LeagueControls() {
     }
   }
 
+  async function autoPickMissingEntries() {
+    setLoading(true)
+    setMessage('')
+    setError('')
+
+    try {
+      const response = await fetch('/.netlify/functions/autoPickMissingEntries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameweekNumber: Number(gameweekNumber), force: true }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Could not auto-pick missing entries')
+      }
+
+      setMessage(`Auto-pick checked ${data.entriesChecked} player entries and created ${data.picksCreated} pick rows.`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="league-panel">
       <div className="panel-header">
@@ -87,6 +140,19 @@ export default function LeagueControls() {
           Join Main League
         </button>
         <label>
+          Demo users
+          <input
+            type="number"
+            min="2"
+            max="12"
+            value={demoCount}
+            onChange={(event) => setDemoCount(event.target.value)}
+          />
+        </label>
+        <button type="button" className="secondary-button" onClick={createDemoUsers} disabled={loading}>
+          Create demo users
+        </button>
+        <label>
           Gameweek
           <input
             type="number"
@@ -98,6 +164,9 @@ export default function LeagueControls() {
         </label>
         <button type="button" className="secondary-button" onClick={generateMatchups} disabled={loading}>
           Generate matchups
+        </button>
+        <button type="button" className="secondary-button" onClick={autoPickMissingEntries} disabled={loading}>
+          Auto-pick missed entries
         </button>
       </div>
 
