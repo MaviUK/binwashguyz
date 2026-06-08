@@ -2,6 +2,9 @@ import WebSocket from 'ws'
 
 globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
+const PAGE_SIZE = 1000
+const IN_CHUNK_SIZE = 400
+
 export async function handler(event) {
   try {
     const { createClient } = await import('@supabase/supabase-js')
@@ -32,12 +35,14 @@ export async function handler(event) {
     if (leagueError) throw leagueError
     if (!league) return jsonResponse(404, { error: 'No fantasy league found yet.' })
 
-    const { data: members, error: membersError } = await supabase
-      .from('league_members')
-      .select('user_id, profiles:user_id(id, team_name, username)')
-      .eq('league_id', league.id)
-
-    if (membersError) throw membersError
+    const members = await fetchAllPages((from, to) =>
+      supabase
+        .from('league_members')
+        .select('user_id, joined_at, profiles:user_id(id, team_name, username)')
+        .eq('league_id', league.id)
+        .order('joined_at', { ascending: true })
+        .range(from, to)
+    )
 
     const table = new Map()
 
@@ -58,31 +63,36 @@ export async function handler(event) {
       })
     }
 
-    const { data: gameweeks, error: gameweeksError } = await supabase
-      .from('fantasy_gameweeks')
-      .select('id, gameweek_number')
-      .eq('league_id', league.id)
-
-    if (gameweeksError) throw gameweeksError
+    const gameweeks = await fetchAllPages((from, to) =>
+      supabase
+        .from('fantasy_gameweeks')
+        .select('id, gameweek_number')
+        .eq('league_id', league.id)
+        .order('gameweek_number', { ascending: true })
+        .range(from, to)
+    )
 
     const gameweekIds = (gameweeks || []).map((gameweek) => gameweek.id)
     const gameweekMap = new Map((gameweeks || []).map((gameweek) => [gameweek.id, gameweek]))
 
     if (gameweekIds.length > 0) {
-      const { data: matches, error: matchesError } = await supabase
-        .from('fantasy_matches')
-        .select('*')
-        .in('fantasy_gameweek_id', gameweekIds)
-        .eq('status', 'scored')
+      const matches = await fetchAllByChunks(gameweekIds, (chunk, from, to) =>
+        supabase
+          .from('fantasy_matches')
+          .select('*')
+          .in('fantasy_gameweek_id', chunk)
+          .eq('status', 'scored')
+          .order('created_at', { ascending: true })
+          .range(from, to)
+      )
 
-      if (matchesError) throw matchesError
-
-      const { data: entries, error: entriesError } = await supabase
-        .from('fantasy_entries')
-        .select('id, fantasy_gameweek_id, user_id, assigned_side')
-        .in('fantasy_gameweek_id', gameweekIds)
-
-      if (entriesError) throw entriesError
+      const entries = await fetchAllByChunks(gameweekIds, (chunk, from, to) =>
+        supabase
+          .from('fantasy_entries')
+          .select('id, fantasy_gameweek_id, user_id, assigned_side')
+          .in('fantasy_gameweek_id', chunk)
+          .range(from, to)
+      )
 
       const entryByGameweekAndUser = new Map()
       const entryIds = []
@@ -95,30 +105,31 @@ export async function handler(event) {
       const picksByEntry = new Map()
 
       if (entryIds.length > 0) {
-        const { data: picks, error: picksError } = await supabase
-          .from('fantasy_entry_picks')
-          .select(`
-            id,
-            entry_id,
-            selected_team_id,
-            selected_team_name,
-            selected_side,
-            goals_for,
-            goals_against,
-            goal_difference,
-            real_fixtures (
+        const picks = await fetchAllByChunks(entryIds, (chunk, from, to) =>
+          supabase
+            .from('fantasy_entry_picks')
+            .select(`
               id,
-              home_team_name,
-              away_team_name,
-              home_score,
-              away_score,
-              kickoff_at,
-              status
-            )
-          `)
-          .in('entry_id', entryIds)
-
-        if (picksError) throw picksError
+              entry_id,
+              selected_team_id,
+              selected_team_name,
+              selected_side,
+              goals_for,
+              goals_against,
+              goal_difference,
+              real_fixtures (
+                id,
+                home_team_name,
+                away_team_name,
+                home_score,
+                away_score,
+                kickoff_at,
+                status
+              )
+            `)
+            .in('entry_id', chunk)
+            .range(from, to)
+        )
 
         for (const pick of picks || []) {
           if (!picksByEntry.has(pick.entry_id)) picksByEntry.set(pick.entry_id, [])
@@ -191,11 +202,54 @@ export async function handler(event) {
 
     return jsonResponse(200, {
       league,
+      memberCount: members.length,
       table: rows,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
   }
+}
+
+async function fetchAllPages(queryFactory) {
+  const rows = []
+  let from = 0
+
+  while (true) {
+    const to = from + PAGE_SIZE - 1
+    const { data, error } = await queryFactory(from, to)
+
+    if (error) throw error
+
+    rows.push(...(data || []))
+
+    if (!data || data.length < PAGE_SIZE) break
+
+    from += PAGE_SIZE
+  }
+
+  return rows
+}
+
+async function fetchAllByChunks(ids, queryFactory) {
+  const rows = []
+  const chunks = chunkArray(ids, IN_CHUNK_SIZE)
+
+  for (const chunk of chunks) {
+    const chunkRows = await fetchAllPages((from, to) => queryFactory(chunk, from, to))
+    rows.push(...chunkRows)
+  }
+
+  return rows
+}
+
+function chunkArray(items, size) {
+  const chunks = []
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+
+  return chunks
 }
 
 function applyMatch(row, scoreFor, scoreAgainst) {
