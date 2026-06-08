@@ -327,6 +327,71 @@ th {
   letter-spacing: 0.08em;
 }
 
+.stat-link {
+  min-width: 34px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 10px;
+  background: #dcffe5;
+  color: #07130d;
+}
+
+.stat-link:disabled {
+  background: transparent;
+  opacity: 1;
+  cursor: default;
+}
+
+.match-detail-panel {
+  margin-top: 18px;
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(124, 255, 155, 0.24);
+}
+
+.match-detail-card {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+  border-radius: 18px;
+  padding: 16px;
+  background: #ffffff;
+  color: #07130d;
+}
+
+.match-scoreline {
+  display: grid;
+  gap: 6px;
+}
+
+.pick-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pick-breakdown {
+  border-radius: 16px;
+  padding: 14px;
+  background: #f4fff7;
+}
+
+.pick-breakdown h3 {
+  margin: 0 0 10px;
+}
+
+.pick-result-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(7, 19, 13, 0.12);
+}
+
+.pick-result-row span {
+  color: rgba(7, 19, 13, 0.68);
+  font-weight: 750;
+}
+
 .rules-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -439,7 +504,8 @@ th {
 
   .rules-grid,
   .team-row,
-  .auth-form {
+  .auth-form,
+  .pick-breakdown-grid {
     grid-template-columns: 1fr;
   }
 
