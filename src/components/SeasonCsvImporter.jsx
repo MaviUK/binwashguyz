@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import * as XLSX from 'xlsx'
 
 function parseCsv(text) {
   const rows = []
@@ -46,17 +47,64 @@ function parseCsv(text) {
   return rows.slice(1).map((cells) => {
     const item = {}
     headers.forEach((header, index) => {
-      item[header.trim()] = cells[index]?.trim() || ''
+      item[String(header).trim()] = cells[index]?.trim() || ''
     })
     return item
   })
 }
 
-function parseFootballDataDate(value) {
-  const [day, month, year] = String(value || '').split('/').map(Number)
-  if (!day || !month || !year) return null
+async function readFixtureFile(file) {
+  const extension = file.name.split('.').pop()?.toLowerCase()
 
-  return new Date(Date.UTC(year, month - 1, day, 15, 0, 0)).toISOString()
+  if (extension === 'xlsx' || extension === 'xls') {
+    const buffer = await file.arrayBuffer()
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true })
+    const sheetName = workbook.SheetNames[0]
+    const sheet = workbook.Sheets[sheetName]
+    return XLSX.utils.sheet_to_json(sheet, { defval: '' })
+  }
+
+  const text = await file.text()
+  return parseCsv(text)
+}
+
+function valueFrom(row, keys) {
+  for (const key of keys) {
+    if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+      return row[key]
+    }
+  }
+  return ''
+}
+
+function parseDate(value) {
+  if (!value) return null
+
+  if (value instanceof Date) {
+    const date = new Date(value)
+    date.setUTCHours(15, 0, 0, 0)
+    return date.toISOString()
+  }
+
+  const raw = String(value).trim()
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+    const date = new Date(raw)
+    if (!Number.isNaN(date.getTime())) return date.toISOString()
+  }
+
+  const slashParts = raw.split(/[\/]/).map(Number)
+  if (slashParts.length === 3) {
+    const [day, month, year] = slashParts
+    if (day && month && year) {
+      return new Date(Date.UTC(year, month - 1, day, 15, 0, 0)).toISOString()
+    }
+  }
+
+  const parsed = new Date(raw)
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
+
+  return null
 }
 
 function parseScore(value) {
@@ -82,17 +130,21 @@ function getSeasonName(matches) {
 
 function buildMatchesFromRows(rows) {
   return rows
-    .filter((row) => row.HomeTeam && row.AwayTeam && row.Date)
+    .filter((row) => valueFrom(row, ['HomeTeam', 'Home Team', 'Home', 'home_team']) && valueFrom(row, ['AwayTeam', 'Away Team', 'Away', 'away_team']))
     .map((row, index) => {
-      const homeScore = parseScore(row.FTHG)
-      const awayScore = parseScore(row.FTAG)
-      const utcDate = parseFootballDataDate(row.Date)
-      const div = row.Div || 'CSV'
+      const homeTeam = String(valueFrom(row, ['HomeTeam', 'Home Team', 'Home', 'home_team'])).trim()
+      const awayTeam = String(valueFrom(row, ['AwayTeam', 'Away Team', 'Away', 'away_team'])).trim()
+      const homeScore = parseScore(valueFrom(row, ['FTHG', 'Home Goals', 'HomeGoals', 'Home Score', 'HomeScore', 'home_score']))
+      const awayScore = parseScore(valueFrom(row, ['FTAG', 'Away Goals', 'AwayGoals', 'Away Score', 'AwayScore', 'away_score']))
+      const utcDate = parseDate(valueFrom(row, ['Date', 'date', 'Kickoff', 'Kickoff Date', 'Match Date']))
+      const div = String(valueFrom(row, ['Div', 'League', 'Competition', 'competition']) || 'CSV').trim()
+      const explicitGameweek = Number(valueFrom(row, ['Gameweek', 'GW', 'Round', 'Week', 'Matchday', 'gameweek']))
 
       return {
         id: `season-${div}-${index + 1}`,
+        importGameweek: Number.isFinite(explicitGameweek) && explicitGameweek > 0 ? explicitGameweek : null,
         utcDate,
-        status: 'SCHEDULED',
+        status: homeScore !== null && awayScore !== null ? 'FINISHED' : 'SCHEDULED',
         competition: {
           code: div,
           name: div === 'E0' ? 'Premier League season replay' : `${div} season replay`,
@@ -101,12 +153,12 @@ function buildMatchesFromRows(rows) {
           startDate: utcDate ? utcDate.slice(0, 10) : null,
         },
         homeTeam: {
-          id: `${div}-home-${row.HomeTeam}`,
-          name: row.HomeTeam,
+          id: `${div}-home-${homeTeam}`,
+          name: homeTeam,
         },
         awayTeam: {
-          id: `${div}-away-${row.AwayTeam}`,
-          name: row.AwayTeam,
+          id: `${div}-away-${awayTeam}`,
+          name: awayTeam,
         },
         score: {
           fullTime: {
@@ -120,10 +172,29 @@ function buildMatchesFromRows(rows) {
 }
 
 function chunkIntoGameweeks(matches, fixturesPerGameweek = 10) {
+  const matchesWithGameweek = matches.filter((match) => match.importGameweek)
+
+  if (matchesWithGameweek.length === matches.length && matches.length > 0) {
+    const grouped = new Map()
+    for (const match of matches) {
+      if (!grouped.has(match.importGameweek)) grouped.set(match.importGameweek, [])
+      grouped.get(match.importGameweek).push(match)
+    }
+
+    return [...grouped.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([gameweekNumber, fixtures]) => ({
+        gameweekNumber,
+        fixtures: fixtures.slice(0, fixturesPerGameweek),
+      }))
+      .filter((gameweek) => gameweek.fixtures.length === fixturesPerGameweek)
+  }
+
+  const sorted = [...matches].sort((a, b) => String(a.utcDate || '').localeCompare(String(b.utcDate || '')))
   const gameweeks = []
 
-  for (let index = 0; index < matches.length; index += fixturesPerGameweek) {
-    const fixtures = matches.slice(index, index + fixturesPerGameweek)
+  for (let index = 0; index < sorted.length; index += fixturesPerGameweek) {
+    const fixtures = sorted.slice(index, index + fixturesPerGameweek)
     if (fixtures.length === fixturesPerGameweek) {
       gameweeks.push({
         gameweekNumber: gameweeks.length + 1,
@@ -141,6 +212,8 @@ export default function SeasonCsvImporter({ onLoadGameweek }) {
   const [gameweekNumber, setGameweekNumber] = useState(1)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importedCount, setImportedCount] = useState(0)
 
   const gameweeks = useMemo(() => chunkIntoGameweeks(matches), [matches])
   const seasonName = useMemo(() => getSeasonName(matches), [matches])
@@ -153,20 +226,20 @@ export default function SeasonCsvImporter({ onLoadGameweek }) {
     setMatches([])
     setFileName(file?.name || '')
     setGameweekNumber(1)
+    setImportedCount(0)
 
     if (!file) return
 
     try {
-      const text = await file.text()
-      const rows = parseCsv(text)
+      const rows = await readFixtureFile(file)
       const parsedMatches = buildMatchesFromRows(rows)
 
       if (parsedMatches.length < 10) {
-        throw new Error('This file does not contain enough valid fixtures. Expected football-data columns like Date, HomeTeam, AwayTeam, FTHG and FTAG.')
+        throw new Error('This file does not contain enough valid fixtures. Expected columns like Date, HomeTeam, AwayTeam, FTHG and FTAG, or Home Team, Away Team, Home Goals and Away Goals.')
       }
 
       setMatches(parsedMatches)
-      setMessage(`Loaded ${parsedMatches.length} fixtures into ${Math.floor(parsedMatches.length / 10)} fantasy gameweeks.`)
+      setMessage(`Loaded ${parsedMatches.length} fixtures into ${Math.floor(parsedMatches.length / 10)} fantasy gameweeks. Click Import full season to save every week.`)
     } catch (err) {
       setError(err.message)
     }
@@ -186,9 +259,51 @@ export default function SeasonCsvImporter({ onLoadGameweek }) {
       matches: gameweek.fixtures,
       gameweekNumber: nextGameweekNumber,
       seasonName,
-      sourceName: fileName || 'Uploaded CSV',
+      sourceName: fileName || 'Uploaded file',
     })
-    setMessage(`Gameweek ${nextGameweekNumber} loaded into the Admin Builder. Save it there before users pick.`)
+    setMessage(`Gameweek ${nextGameweekNumber} loaded into the Admin Builder.`)
+  }
+
+  async function saveGameweek(gameweek) {
+    const response = await fetch('/.netlify/functions/saveGameweek', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        competition: gameweek.fixtures[0]?.competition?.code || 'CSV',
+        competitionName: `Season replay ${seasonName}`,
+        gameweekNumber: Number(gameweek.gameweekNumber),
+        fixtures: gameweek.fixtures,
+      }),
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message || data.error || `Could not save Gameweek ${gameweek.gameweekNumber}`)
+    return data
+  }
+
+  async function importFullSeason() {
+    if (gameweeks.length === 0) return
+
+    setImporting(true)
+    setError('')
+    setMessage('Importing full season...')
+    setImportedCount(0)
+
+    try {
+      for (let index = 0; index < gameweeks.length; index += 1) {
+        await saveGameweek(gameweeks[index])
+        setImportedCount(index + 1)
+      }
+
+      setMessage(`Imported ${gameweeks.length} gameweeks. Gameweek 1 is now ready in Player view.`)
+      loadSelectedGameweek(1)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setImporting(false)
+    }
   }
 
   function loadNextGameweek() {
@@ -201,15 +316,15 @@ export default function SeasonCsvImporter({ onLoadGameweek }) {
       <div className="panel-header">
         <div>
           <p className="eyebrow small">Season replay</p>
-          <h2>Upload this season CSV</h2>
+          <h2>Upload full season fixtures/results</h2>
         </div>
         <p>{gameweeks.length} gameweeks</p>
       </div>
 
       <div className="builder-controls">
         <label>
-          Football-data CSV
-          <input type="file" accept=".csv,text/csv" onChange={handleFileUpload} />
+          Season CSV or Excel
+          <input type="file" accept=".csv,.xlsx,.xls,text/csv" onChange={handleFileUpload} />
         </label>
 
         <label>
@@ -223,26 +338,30 @@ export default function SeasonCsvImporter({ onLoadGameweek }) {
           />
         </label>
 
-        <button type="button" onClick={() => loadSelectedGameweek()} disabled={!activeGameweek}>
+        <button type="button" onClick={() => loadSelectedGameweek()} disabled={!activeGameweek || importing}>
           Load gameweek
         </button>
 
-        <button type="button" className="secondary-button" onClick={loadNextGameweek} disabled={gameweeks.length === 0 || Number(gameweekNumber) >= gameweeks.length}>
+        <button type="button" className="secondary-button" onClick={importFullSeason} disabled={gameweeks.length === 0 || importing}>
+          {importing ? `Importing ${importedCount}/${gameweeks.length}` : 'Import full season'}
+        </button>
+
+        <button type="button" className="secondary-button" onClick={loadNextGameweek} disabled={gameweeks.length === 0 || Number(gameweekNumber) >= gameweeks.length || importing}>
           Advance to next gameweek
         </button>
       </div>
 
       {matches.length === 0 && !error && (
         <div className="empty-state">
-          Upload a football-data CSV like E0.csv. The importer groups the 380 Premier League fixtures into 38 fantasy gameweeks of 10 fixtures.
+          Upload a full season CSV or Excel file. The importer groups fixtures into fantasy gameweeks of 10 and saves the results too.
         </div>
       )}
 
       {activeGameweek && (
         <div className="account-card season-summary-card">
-          <strong>{fileName || 'Uploaded CSV'} - {seasonName}</strong>
+          <strong>{fileName || 'Uploaded file'} - {seasonName}</strong>
           <span>Gameweek {activeGameweek.gameweekNumber}: {activeGameweek.fixtures[0]?.homeTeam?.name} vs {activeGameweek.fixtures[0]?.awayTeam?.name} through {activeGameweek.fixtures.at(-1)?.homeTeam?.name} vs {activeGameweek.fixtures.at(-1)?.awayTeam?.name}</span>
-          <span>The results are stored with the fixtures, so you can score the gameweek without pressing Simulate results.</span>
+          <span>The results are saved with each fixture, so score the gameweek without pressing Simulate results.</span>
         </div>
       )}
 
