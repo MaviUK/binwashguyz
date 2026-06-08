@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import ws from 'ws'
 
+const PAGE_SIZE = 1000
+const UPSERT_SIZE = 500
+
 export async function handler(event) {
   if (event.httpMethod !== 'POST') {
     return jsonResponse(405, { error: 'Method not allowed' })
@@ -18,6 +21,10 @@ export async function handler(event) {
     const gameweekNumber = Number(payload.gameweekNumber || 1)
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
       realtime: {
         transport: ws,
       },
@@ -37,13 +44,7 @@ export async function handler(event) {
       return jsonResponse(404, { error: `Gameweek ${gameweekNumber} has not been created yet.` })
     }
 
-    const { data: members, error: membersError } = await supabase
-      .from('league_members')
-      .select('user_id, joined_at')
-      .eq('league_id', gameweek.league_id)
-      .order('joined_at', { ascending: true })
-
-    if (membersError) throw membersError
+    const members = await fetchAllMembers(supabase, gameweek.league_id)
 
     if (!members || members.length < 2) {
       return jsonResponse(400, { error: 'At least 2 league members are needed to generate matchups.' })
@@ -65,27 +66,59 @@ export async function handler(event) {
       })
     }
 
-    const { data: savedMatchups, error: matchupsError } = await supabase
-      .from('fantasy_matches')
-      .upsert(matchups, {
-        onConflict: 'fantasy_gameweek_id,home_user_id,away_user_id',
-      })
-      .select()
-
-    if (matchupsError) throw matchupsError
-
+    const savedCount = await upsertMatchups(supabase, matchups)
     const hasBye = orderedMembers.length % 2 === 1
 
     return jsonResponse(200, {
       gameweekNumber,
-      matchupCount: savedMatchups.length,
+      memberCount: orderedMembers.length,
+      matchupCount: savedCount,
       hasBye,
       byeUserId: hasBye ? orderedMembers[orderedMembers.length - 1].user_id : null,
-      matchups: savedMatchups,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
   }
+}
+
+async function fetchAllMembers(supabase, leagueId) {
+  const members = []
+  let from = 0
+
+  while (true) {
+    const to = from + PAGE_SIZE - 1
+    const { data, error } = await supabase
+      .from('league_members')
+      .select('user_id, joined_at')
+      .eq('league_id', leagueId)
+      .order('joined_at', { ascending: true })
+      .range(from, to)
+
+    if (error) throw error
+    members.push(...(data || []))
+    if (!data || data.length < PAGE_SIZE) break
+    from += PAGE_SIZE
+  }
+
+  return members
+}
+
+async function upsertMatchups(supabase, matchups) {
+  let savedCount = 0
+
+  for (let index = 0; index < matchups.length; index += UPSERT_SIZE) {
+    const chunk = matchups.slice(index, index + UPSERT_SIZE)
+    const { error } = await supabase
+      .from('fantasy_matches')
+      .upsert(chunk, {
+        onConflict: 'fantasy_gameweek_id,home_user_id,away_user_id',
+      })
+
+    if (error) throw error
+    savedCount += chunk.length
+  }
+
+  return savedCount
 }
 
 function jsonResponse(statusCode, body) {
