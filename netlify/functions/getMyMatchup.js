@@ -45,11 +45,21 @@ export async function handler(event) {
       limit: '1',
     })
 
+    const fixtureLinks = await supabaseGet(supabaseUrl, serviceRoleKey, 'gameweek_fixtures', {
+      select: 'display_order,real_fixtures(id,provider_fixture_id,competition_code,competition_name,kickoff_at,home_team_id,home_team_name,away_team_id,away_team_name,status,home_score,away_score)',
+      fantasy_gameweek_id: `eq.${gameweek.id}`,
+      order: 'display_order.asc',
+    })
+
     return jsonResponse(200, {
       gameweek,
       matchup,
       assignedSide,
       opponent: profiles[0] || null,
+      fixtures: fixtureLinks.map((item) => ({
+        displayOrder: item.display_order,
+        ...item.real_fixtures,
+      })),
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
