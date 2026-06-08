@@ -16,6 +16,8 @@ function formatKickoff(kickoffAt) {
 export default function PickScreen() {
   const [gameweekNumber, setGameweekNumber] = useState(1)
   const [assignedSide, setAssignedSide] = useState('home')
+  const [matchup, setMatchup] = useState(null)
+  const [opponent, setOpponent] = useState(null)
   const [gameweek, setGameweek] = useState(null)
   const [fixtures, setFixtures] = useState([])
   const [selectedIds, setSelectedIds] = useState([])
@@ -24,22 +26,49 @@ export default function PickScreen() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  async function loadGameweek() {
+  async function getUserId() {
+    if (!supabaseConfigured) throw new Error('Supabase is not configured yet.')
+
+    const { data } = await supabase.auth.getSession()
+    const userId = data.session?.user?.id
+
+    if (!userId) throw new Error('Sign in before loading your matchup.')
+
+    return userId
+  }
+
+  async function loadGameweekAndMatchup() {
     setLoading(true)
     setError('')
     setMessage('')
     setSelectedIds([])
+    setMatchup(null)
+    setOpponent(null)
 
     try {
-      const response = await fetch(`/.netlify/functions/getGameweek?gameweek=${gameweekNumber}`)
-      const data = await response.json()
+      const userId = await getUserId()
 
-      if (!response.ok) {
-        throw new Error(data.message || data.error || 'Could not load gameweek')
+      const matchupResponse = await fetch(
+        `/.netlify/functions/getMyMatchup?gameweek=${gameweekNumber}&userId=${userId}`
+      )
+      const matchupData = await matchupResponse.json()
+
+      if (!matchupResponse.ok) {
+        throw new Error(matchupData.message || matchupData.error || 'Could not load your matchup')
       }
 
-      setGameweek(data.gameweek)
-      setFixtures(data.fixtures || [])
+      const gameweekResponse = await fetch(`/.netlify/functions/getGameweek?gameweek=${gameweekNumber}`)
+      const gameweekData = await gameweekResponse.json()
+
+      if (!gameweekResponse.ok) {
+        throw new Error(gameweekData.message || gameweekData.error || 'Could not load gameweek')
+      }
+
+      setAssignedSide(matchupData.assignedSide)
+      setMatchup(matchupData.matchup)
+      setOpponent(matchupData.opponent)
+      setGameweek(gameweekData.gameweek)
+      setFixtures(gameweekData.fixtures || [])
     } catch (err) {
       setError(err.message)
       setGameweek(null)
@@ -74,19 +103,14 @@ export default function PickScreen() {
     setMessage('')
 
     try {
-      if (!supabaseConfigured) {
-        throw new Error('Supabase is not configured yet.')
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession()
-      const userId = sessionData.session?.user?.id
-
-      if (!userId) {
-        throw new Error('Sign in before submitting picks.')
-      }
+      const userId = await getUserId()
 
       if (!gameweek?.id) {
-        throw new Error('Load a saved gameweek before submitting picks.')
+        throw new Error('Load your saved gameweek before submitting picks.')
+      }
+
+      if (!matchup?.id) {
+        throw new Error('Load your matchup before submitting picks.')
       }
 
       if (selectedIds.length !== 3) {
@@ -152,27 +176,25 @@ export default function PickScreen() {
             onChange={(event) => setGameweekNumber(event.target.value)}
           />
         </label>
-        <label>
-          Assigned side
-          <select value={assignedSide} onChange={(event) => setAssignedSide(event.target.value)}>
-            <option value="home">Home user: pick home teams</option>
-            <option value="away">Away user: pick away teams</option>
-          </select>
-        </label>
-        <button type="button" onClick={loadGameweek} disabled={loading}>
-          {loading ? 'Loading...' : 'Load gameweek'}
+        <button type="button" onClick={loadGameweekAndMatchup} disabled={loading}>
+          {loading ? 'Loading...' : 'Load my matchup'}
         </button>
       </div>
 
       {!gameweek && !loading && (
         <div className="empty-state">
-          Save a gameweek in the admin builder first, then load it here for player picks.
+          Join the league, create Gameweek 1, generate matchups, then load your matchup here.
         </div>
       )}
 
-      {gameweek && (
-        <div className="loaded-note">
-          Gameweek {gameweek.gameweek_number} loaded. Deadline: {gameweek.deadline_at ? formatKickoff(gameweek.deadline_at) : 'TBC'}.
+      {gameweek && matchup && (
+        <div className="account-card matchup-card">
+          <strong>
+            You are the {assignedSide === 'home' ? 'home' : 'away'} player for Gameweek{' '}
+            {gameweek.gameweek_number}.
+          </strong>
+          <span>Opponent: {opponent?.team_name || 'Opponent profile not found'}</span>
+          <span>Deadline: {gameweek.deadline_at ? formatKickoff(gameweek.deadline_at) : 'TBC'}</span>
         </div>
       )}
 
@@ -194,7 +216,7 @@ export default function PickScreen() {
                   Pick <strong>{teamName}</strong>
                 </span>
                 <small>
-                  vs {opponentName} • {formatKickoff(fixture.kickoff_at)}
+                  vs {opponentName} - {formatKickoff(fixture.kickoff_at)}
                 </small>
               </button>
             )
