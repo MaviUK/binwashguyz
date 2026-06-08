@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import './LeagueTable.css'
+
+const PAGE_SIZE = 100
 
 export default function LeagueTable() {
   const [rows, setRows] = useState([])
@@ -6,11 +9,23 @@ export default function LeagueTable() {
   const [selectedDetail, setSelectedDetail] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
+
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const pageStart = rows.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
+  const pageEnd = Math.min(currentPage * PAGE_SIZE, rows.length)
+
+  const visibleRows = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE
+    return rows.slice(startIndex, startIndex + PAGE_SIZE)
+  }, [rows, currentPage])
 
   async function loadTable() {
     setLoading(true)
     setError('')
     setSelectedDetail(null)
+    setPage(1)
 
     try {
       const response = await fetch('/.netlify/functions/getLeagueTable')
@@ -28,6 +43,12 @@ export default function LeagueTable() {
     } finally {
       setLoading(false)
     }
+  }
+
+  function goToPage(nextPage) {
+    const cleanPage = Math.min(Math.max(Number(nextPage) || 1, 1), pageCount)
+    setPage(cleanPage)
+    setSelectedDetail(null)
   }
 
   function showMatches(row, resultType) {
@@ -57,67 +78,87 @@ export default function LeagueTable() {
       )}
 
       {rows.length > 0 && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Team</th>
-                <th>P</th>
-                <th>W</th>
-                <th>D</th>
-                <th>L</th>
-                <th>SF</th>
-                <th>SA</th>
-                <th>SD</th>
-                <th>Pts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.userId}>
-                  <td>{row.position}</td>
-                  <td>{row.teamName}</td>
-                  <td>{row.played}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="stat-link"
-                      onClick={() => showMatches(row, 'win')}
-                      disabled={row.won === 0}
-                    >
-                      {row.won}
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="stat-link"
-                      onClick={() => showMatches(row, 'draw')}
-                      disabled={row.drawn === 0}
-                    >
-                      {row.drawn}
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="stat-link"
-                      onClick={() => showMatches(row, 'loss')}
-                      disabled={row.lost === 0}
-                    >
-                      {row.lost}
-                    </button>
-                  </td>
-                  <td>{row.scoreFor}</td>
-                  <td>{row.scoreAgainst}</td>
-                  <td>{row.scoreDifference}</td>
-                  <td><strong>{row.points}</strong></td>
+        <>
+          <TablePager
+            currentPage={currentPage}
+            pageCount={pageCount}
+            pageStart={pageStart}
+            pageEnd={pageEnd}
+            totalRows={rows.length}
+            onPageChange={goToPage}
+          />
+
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Team</th>
+                  <th>P</th>
+                  <th>W</th>
+                  <th>D</th>
+                  <th>L</th>
+                  <th>SF</th>
+                  <th>SA</th>
+                  <th>SD</th>
+                  <th>Pts</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {visibleRows.map((row) => (
+                  <tr key={row.userId}>
+                    <td>{row.position}</td>
+                    <td>{row.teamName}</td>
+                    <td>{row.played}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="stat-link"
+                        onClick={() => showMatches(row, 'win')}
+                        disabled={row.won === 0}
+                      >
+                        {row.won}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="stat-link"
+                        onClick={() => showMatches(row, 'draw')}
+                        disabled={row.drawn === 0}
+                      >
+                        {row.drawn}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="stat-link"
+                        onClick={() => showMatches(row, 'loss')}
+                        disabled={row.lost === 0}
+                      >
+                        {row.lost}
+                      </button>
+                    </td>
+                    <td>{row.scoreFor}</td>
+                    <td>{row.scoreAgainst}</td>
+                    <td>{row.scoreDifference}</td>
+                    <td><strong>{row.points}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <TablePager
+            currentPage={currentPage}
+            pageCount={pageCount}
+            pageStart={pageStart}
+            pageEnd={pageEnd}
+            totalRows={rows.length}
+            onPageChange={goToPage}
+          />
+        </>
       )}
 
       {selectedDetail && (
@@ -126,6 +167,49 @@ export default function LeagueTable() {
 
       {error && <p className="error">{error}</p>}
     </section>
+  )
+}
+
+function TablePager({ currentPage, pageCount, pageStart, pageEnd, totalRows, onPageChange }) {
+  return (
+    <div className="league-table-pager">
+      <span>
+        Showing <strong>{pageStart}-{pageEnd}</strong> of <strong>{totalRows}</strong>
+      </span>
+
+      <div className="league-table-pager-controls">
+        <button
+          type="button"
+          className="secondary-button compact-button"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
+        >
+          Previous
+        </button>
+
+        <label>
+          Page
+          <input
+            type="number"
+            min="1"
+            max={pageCount}
+            value={currentPage}
+            onChange={(event) => onPageChange(event.target.value)}
+          />
+        </label>
+
+        <span>of {pageCount}</span>
+
+        <button
+          type="button"
+          className="secondary-button compact-button"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= pageCount}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   )
 }
 
