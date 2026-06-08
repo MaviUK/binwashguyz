@@ -3,6 +3,7 @@ import { supabase, supabaseConfigured } from '../lib/supabase'
 
 export default function LeagueControls() {
   const [gameweekNumber, setGameweekNumber] = useState(1)
+  const [seasonWeeks, setSeasonWeeks] = useState(38)
   const [demoCount, setDemoCount] = useState(8)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -100,6 +101,40 @@ export default function LeagueControls() {
     }
   }
 
+  async function generateSeasonMatchups() {
+    setLoading(true)
+    setMessage('Generating full season matchups...')
+    setError('')
+
+    try {
+      let totalMatchups = 0
+      const totalWeeks = Number(seasonWeeks)
+
+      for (let week = 1; week <= totalWeeks; week += 1) {
+        const response = await fetch('/.netlify/functions/generateMatchups', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameweekNumber: week }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || data.error || `Could not generate matchups for Gameweek ${week}`)
+        }
+
+        totalMatchups += Number(data.matchupCount || 0)
+        setMessage(`Generated matchups through Gameweek ${week}/${totalWeeks}...`)
+      }
+
+      setMessage(`Generated ${totalMatchups} matchup slots across ${totalWeeks} gameweeks.`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function autoPickMissingEntries() {
     setLoading(true)
     setMessage('')
@@ -164,6 +199,19 @@ export default function LeagueControls() {
         </label>
         <button type="button" className="secondary-button" onClick={generateMatchups} disabled={loading}>
           Generate matchups
+        </button>
+        <label>
+          Season weeks
+          <input
+            type="number"
+            min="1"
+            max="38"
+            value={seasonWeeks}
+            onChange={(event) => setSeasonWeeks(event.target.value)}
+          />
+        </label>
+        <button type="button" className="secondary-button" onClick={generateSeasonMatchups} disabled={loading}>
+          Generate full season matchups
         </button>
         <button type="button" className="secondary-button" onClick={autoPickMissingEntries} disabled={loading}>
           Auto-pick missed entries
