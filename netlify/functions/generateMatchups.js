@@ -20,7 +20,7 @@ export async function handler(event) {
 
     const { data: gameweek, error: gameweekError } = await supabase
       .from('fantasy_gameweeks')
-      .select('id, gameweek_number')
+      .select('id, league_id, gameweek_number')
       .eq('gameweek_number', gameweekNumber)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -32,48 +32,31 @@ export async function handler(event) {
       return jsonResponse(404, { error: `Gameweek ${gameweekNumber} has not been created yet.` })
     }
 
-    const { data: entries, error: entriesError } = await supabase
-      .from('fantasy_entries')
-      .select('id, user_id, assigned_side, created_at')
-      .eq('fantasy_gameweek_id', gameweek.id)
-      .order('created_at', { ascending: true })
+    const { data: members, error: membersError } = await supabase
+      .from('league_members')
+      .select('user_id, joined_at')
+      .eq('league_id', gameweek.league_id)
+      .order('joined_at', { ascending: true })
 
-    if (entriesError) throw entriesError
+    if (membersError) throw membersError
 
-    if (!entries || entries.length < 2) {
-      return jsonResponse(400, { error: 'At least 2 submitted players are needed to generate matchups.' })
+    if (!members || members.length < 2) {
+      return jsonResponse(400, { error: 'At least 2 league members are needed to generate matchups.' })
     }
 
-    const homeEntries = entries.filter((entry) => entry.assigned_side === 'home')
-    const awayEntries = entries.filter((entry) => entry.assigned_side === 'away')
-
+    const orderedMembers = [...members].sort((a, b) => String(a.user_id).localeCompare(String(b.user_id)))
     const matchups = []
-    const usedUserIds = new Set()
 
-    while (homeEntries.length > 0 && awayEntries.length > 0) {
-      const home = homeEntries.shift()
-      const awayIndex = awayEntries.findIndex((entry) => entry.user_id !== home.user_id)
-
-      if (awayIndex === -1) break
-
-      const [away] = awayEntries.splice(awayIndex, 1)
-
-      if (usedUserIds.has(home.user_id) || usedUserIds.has(away.user_id)) continue
-
-      usedUserIds.add(home.user_id)
-      usedUserIds.add(away.user_id)
+    for (let index = 0; index < orderedMembers.length - 1; index += 2) {
+      const first = orderedMembers[index]
+      const second = orderedMembers[index + 1]
+      const swapSides = gameweekNumber % 2 === 0
 
       matchups.push({
         fantasy_gameweek_id: gameweek.id,
-        home_user_id: home.user_id,
-        away_user_id: away.user_id,
+        home_user_id: swapSides ? second.user_id : first.user_id,
+        away_user_id: swapSides ? first.user_id : second.user_id,
         status: 'scheduled',
-      })
-    }
-
-    if (matchups.length === 0) {
-      return jsonResponse(400, {
-        error: 'No valid matchups could be created. You need at least one home entry and one away entry.',
       })
     }
 
@@ -86,10 +69,13 @@ export async function handler(event) {
 
     if (matchupsError) throw matchupsError
 
+    const hasBye = orderedMembers.length % 2 === 1
+
     return jsonResponse(200, {
       gameweekNumber,
       matchupCount: savedMatchups.length,
-      unpairedPlayers: entries.length - savedMatchups.length * 2,
+      hasBye,
+      byeUserId: hasBye ? orderedMembers[orderedMembers.length - 1].user_id : null,
       matchups: savedMatchups,
     })
   } catch (error) {
