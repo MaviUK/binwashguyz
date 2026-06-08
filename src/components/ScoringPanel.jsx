@@ -7,6 +7,35 @@ export default function ScoringPanel() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
+  async function simulateResults() {
+    setLoading(true)
+    setMessage('')
+    setError('')
+
+    try {
+      const response = await fetch('/.netlify/functions/simulateGameweekResults', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gameweekNumber: Number(gameweekNumber),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Could not simulate results')
+      }
+
+      setSyncResults(false)
+      setMessage(`Simulated results for ${data.fixtureCount} fixture(s). Now click Score gameweek.`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function scoreGameweek() {
     setLoading(true)
     setMessage('')
@@ -66,6 +95,9 @@ export default function ScoringPanel() {
           />
           Sync latest real results first
         </label>
+        <button type="button" className="secondary-button" onClick={simulateResults} disabled={loading}>
+          {loading ? 'Working...' : 'Simulate results'}
+        </button>
         <button type="button" onClick={scoreGameweek} disabled={loading}>
           {loading ? 'Scoring...' : 'Score gameweek'}
         </button>
