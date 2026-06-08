@@ -15,6 +15,34 @@ const COMPETITIONS = [
   { code: 'SA', name: 'Serie A' },
   { code: 'FL1', name: 'Ligue 1' },
   { code: 'CL', name: 'Champions League' },
+  { code: 'TEST', name: 'Test Fixture League' },
+]
+
+const TEST_TEAMS = [
+  'Bangor Rovers',
+  'Groomsport United',
+  'Holywood Albion',
+  'Newtownards Town',
+  'Comber City',
+  'Donaghadee Athletic',
+  'Millisle Wanderers',
+  'Conlig County',
+  'Ballyholme FC',
+  'Clandeboye Rangers',
+  'Crawfordsburn Villa',
+  'Helen Bay Hotspur',
+  'Dundonald Forest',
+  'Ards Athletic',
+  'Greyabbey Town',
+  'Portaferry United',
+  'Kircubbin Rovers',
+  'Ballywalter City',
+  'Loughview FC',
+  'Castle Park Albion',
+  'Seacliff Rangers',
+  'Harbour Athletic',
+  'Abbey Villa',
+  'North Down County',
 ]
 
 function formatKickoff(utcDate) {
@@ -40,6 +68,48 @@ function getScoreText(match) {
   return `${home} - ${away}`
 }
 
+function buildTestFixtures() {
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() + 3)
+  startDate.setHours(15, 0, 0, 0)
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const kickoff = new Date(startDate)
+    kickoff.setDate(startDate.getDate() + Math.floor(index / 4))
+    kickoff.setHours(15 + (index % 4), 0, 0, 0)
+
+    const homeTeamName = TEST_TEAMS[index * 2]
+    const awayTeamName = TEST_TEAMS[index * 2 + 1]
+
+    return {
+      id: `test-fixture-${index + 1}`,
+      utcDate: kickoff.toISOString(),
+      status: 'SCHEDULED',
+      competition: {
+        code: 'TEST',
+        name: 'Test Fixture League',
+      },
+      season: {
+        startDate: '2026-01-01',
+      },
+      homeTeam: {
+        id: `test-home-${index + 1}`,
+        name: homeTeamName,
+      },
+      awayTeam: {
+        id: `test-away-${index + 1}`,
+        name: awayTeamName,
+      },
+      score: {
+        fullTime: {
+          home: null,
+          away: null,
+        },
+      },
+    }
+  })
+}
+
 function App() {
   const [competition, setCompetition] = useState('PL')
   const [mode, setMode] = useState('SCHEDULED')
@@ -52,6 +122,14 @@ function App() {
     () => COMPETITIONS.find((item) => item.code === competition),
     [competition]
   )
+
+  function loadTestFixtures() {
+    setError('')
+    setCompetition('TEST')
+    setMode('SCHEDULED')
+    setMatches(buildTestFixtures())
+    setLastLoaded(`${new Date().toLocaleString('en-GB')} - test fixtures`)
+  }
 
   async function loadMatches(nextMode = mode) {
     setLoading(true)
@@ -113,6 +191,14 @@ function App() {
             >
               {loading && mode === 'FINISHED' ? 'Loading...' : 'Load latest results'}
             </button>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={loadTestFixtures}
+              disabled={loading}
+            >
+              Load test fixtures
+            </button>
           </div>
         </div>
 
@@ -165,7 +251,7 @@ function App() {
 
         {matches.length === 0 && !loading && !error && (
           <div className="empty-state">
-            Choose a competition, then load upcoming fixtures or latest results.
+            Choose a competition, then load upcoming fixtures, latest results, or test fixtures.
           </div>
         )}
 
