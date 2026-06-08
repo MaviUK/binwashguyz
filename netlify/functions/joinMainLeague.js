@@ -30,33 +30,8 @@ export async function handler(event) {
       },
     })
 
-    const { data: league, error: leagueError } = await supabase
-      .from('fantasy_leagues')
-      .upsert(
-        {
-          name: DEFAULT_LEAGUE_NAME,
-          season_name: DEFAULT_SEASON_NAME,
-        },
-        { onConflict: 'name,season_name' }
-      )
-      .select()
-      .single()
-
-    if (leagueError) throw leagueError
-
-    const { data: membership, error: memberError } = await supabase
-      .from('league_members')
-      .upsert(
-        {
-          league_id: league.id,
-          user_id: userId,
-        },
-        { onConflict: 'league_id,user_id' }
-      )
-      .select()
-      .single()
-
-    if (memberError) throw memberError
+    const league = await getOrCreateMainLeague(supabase)
+    const membership = await getOrCreateMembership(supabase, league.id, userId)
 
     return jsonResponse(200, {
       league,
@@ -65,6 +40,57 @@ export async function handler(event) {
   } catch (error) {
     return jsonResponse(500, { error: error.message })
   }
+}
+
+async function getOrCreateMainLeague(supabase) {
+  const { data: existing, error: findError } = await supabase
+    .from('fantasy_leagues')
+    .select('*')
+    .eq('name', DEFAULT_LEAGUE_NAME)
+    .eq('season_name', DEFAULT_SEASON_NAME)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (findError) throw findError
+  if (existing) return existing
+
+  const { data: created, error: createError } = await supabase
+    .from('fantasy_leagues')
+    .insert({
+      name: DEFAULT_LEAGUE_NAME,
+      season_name: DEFAULT_SEASON_NAME,
+    })
+    .select()
+    .single()
+
+  if (createError) throw createError
+  return created
+}
+
+async function getOrCreateMembership(supabase, leagueId, userId) {
+  const { data: existing, error: findError } = await supabase
+    .from('league_members')
+    .select('*')
+    .eq('league_id', leagueId)
+    .eq('user_id', userId)
+    .limit(1)
+    .maybeSingle()
+
+  if (findError) throw findError
+  if (existing) return existing
+
+  const { data: created, error: createError } = await supabase
+    .from('league_members')
+    .insert({
+      league_id: leagueId,
+      user_id: userId,
+    })
+    .select()
+    .single()
+
+  if (createError) throw createError
+  return created
 }
 
 function jsonResponse(statusCode, body) {
