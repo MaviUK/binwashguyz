@@ -57,18 +57,11 @@ export default function PickScreen() {
         throw new Error(matchupData.message || matchupData.error || 'Could not load your matchup')
       }
 
-      const gameweekResponse = await fetch(`/.netlify/functions/getGameweek?gameweek=${gameweekNumber}`)
-      const gameweekData = await gameweekResponse.json()
-
-      if (!gameweekResponse.ok) {
-        throw new Error(gameweekData.message || gameweekData.error || 'Could not load gameweek')
-      }
-
       setAssignedSide(matchupData.assignedSide)
       setMatchup(matchupData.matchup)
       setOpponent(matchupData.opponent)
-      setGameweek(gameweekData.gameweek)
-      setFixtures(gameweekData.fixtures || [])
+      setGameweek(matchupData.gameweek)
+      setFixtures(matchupData.fixtures || [])
     } catch (err) {
       setError(err.message)
       setGameweek(null)
