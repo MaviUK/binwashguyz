@@ -5,6 +5,7 @@ import LeagueControls from './components/LeagueControls'
 import LeagueTable from './components/LeagueTable'
 import PickScreen from './components/PickScreen'
 import ScoringPanel from './components/ScoringPanel'
+import SeasonCsvImporter from './components/SeasonCsvImporter'
 import './App.css'
 
 const COMPETITIONS = [
@@ -16,6 +17,7 @@ const COMPETITIONS = [
   { code: 'FL1', name: 'Ligue 1' },
   { code: 'CL', name: 'Champions League' },
   { code: 'TEST', name: 'Test Fixture League' },
+  { code: 'E0', name: 'Premier League season replay' },
 ]
 
 const TEST_TEAMS = [
@@ -112,6 +114,8 @@ function buildTestFixtures() {
 
 function App() {
   const [competition, setCompetition] = useState('PL')
+  const [competitionNameOverride, setCompetitionNameOverride] = useState('')
+  const [builderGameweekNumber, setBuilderGameweekNumber] = useState(1)
   const [mode, setMode] = useState('SCHEDULED')
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(false)
@@ -123,18 +127,32 @@ function App() {
     [competition]
   )
 
+  const competitionName = competitionNameOverride || selectedCompetition?.name || competition
+
   function loadTestFixtures() {
     setError('')
     setCompetition('TEST')
+    setCompetitionNameOverride('')
     setMode('SCHEDULED')
     setMatches(buildTestFixtures())
     setLastLoaded(`${new Date().toLocaleString('en-GB')} - test fixtures`)
+  }
+
+  function handleSeasonGameweekLoad({ matches: seasonMatches, gameweekNumber, seasonName, sourceName }) {
+    setError('')
+    setCompetition('E0')
+    setCompetitionNameOverride(`Premier League ${seasonName}`)
+    setMode('SCHEDULED')
+    setMatches(seasonMatches)
+    setBuilderGameweekNumber(gameweekNumber)
+    setLastLoaded(`${new Date().toLocaleString('en-GB')} - ${sourceName} Gameweek ${gameweekNumber}`)
   }
 
   async function loadMatches(nextMode = mode) {
     setLoading(true)
     setError('')
     setMode(nextMode)
+    setCompetitionNameOverride('')
 
     try {
       const endpoint = nextMode === 'FINISHED' ? 'updateResults' : 'fetchFixtures'
@@ -208,12 +226,16 @@ function App() {
 
       <AuthPanel />
 
+      <SeasonCsvImporter onLoadGameweek={handleSeasonGameweekLoad} />
+
       <LeagueControls />
 
       <GameweekBuilder
         matches={matches}
         competition={competition}
-        competitionName={selectedCompetition?.name || competition}
+        competitionName={competitionName}
+        gameweekNumber={builderGameweekNumber}
+        onGameweekNumberChange={setBuilderGameweekNumber}
       />
 
       <PickScreen />
@@ -244,14 +266,14 @@ function App() {
         <div className="panel-header">
           <div>
             <p className="eyebrow small">{mode === 'FINISHED' ? 'Results' : 'Fixtures'}</p>
-            <h2>{selectedCompetition?.name || competition}</h2>
+            <h2>{competitionName}</h2>
           </div>
           <p>{matches.length} matches</p>
         </div>
 
         {matches.length === 0 && !loading && !error && (
           <div className="empty-state">
-            Choose a competition, then load upcoming fixtures, latest results, or test fixtures.
+            Choose a competition, then load upcoming fixtures, latest results, test fixtures, or upload a season CSV.
           </div>
         )}
 
@@ -265,7 +287,7 @@ function App() {
               </div>
               <div className="meta-row">
                 <span>{formatKickoff(match.utcDate)}</span>
-                <span>{match.competition?.name || selectedCompetition?.name}</span>
+                <span>{match.competition?.name || competitionName}</span>
                 <span>{match.status}</span>
               </div>
             </article>
