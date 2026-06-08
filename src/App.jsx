@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import AuthPanel from './components/AuthPanel'
 import GameweekBuilder from './components/GameweekBuilder'
+import LeagueControls from './components/LeagueControls'
 import PickScreen from './components/PickScreen'
 import './App.css'
 
@@ -118,6 +119,8 @@ function App() {
       </section>
 
       <AuthPanel />
+
+      <LeagueControls />
 
       <GameweekBuilder
         matches={matches}
