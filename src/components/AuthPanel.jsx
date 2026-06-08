@@ -8,6 +8,10 @@ const initialForm = {
   teamName: '',
 }
 
+function getAuthRedirectUrl() {
+  return window.location.origin
+}
+
 export default function AuthPanel() {
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -71,8 +75,15 @@ export default function AuthPanel() {
 
       if (mode === 'sign-up') {
         const { data, error: signUpError } = await supabase.auth.signUp({
-          email: form.email,
+          email: form.email.trim(),
           password: form.password,
+          options: {
+            emailRedirectTo: getAuthRedirectUrl(),
+            data: {
+              username: form.username.trim(),
+              team_name: form.teamName.trim(),
+            },
+          },
         })
 
         if (signUpError) throw signUpError
@@ -81,11 +92,11 @@ export default function AuthPanel() {
           await saveProfile(data.session.user.id)
           setMessage('Account created and profile saved.')
         } else {
-          setMessage('Account created. Check your email if Supabase email confirmation is enabled.')
+          setMessage('Account created. Check your email and confirm the account, then return here and sign in.')
         }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: form.email,
+          email: form.email.trim(),
           password: form.password,
         })
 
@@ -93,7 +104,11 @@ export default function AuthPanel() {
         setMessage('Signed in successfully.')
       }
     } catch (err) {
-      setError(err.message)
+      if (err.message === 'Email not confirmed') {
+        setError('Email not confirmed. Open the confirmation email first, or temporarily turn off Confirm email in Supabase Auth settings while testing.')
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
