@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import ws from 'ws'
 
 const DEFAULT_LEAGUE_NAME = 'Main League'
 const DEFAULT_SEASON_NAME = '2026/27'
-const DEMO_PASSWORD = 'DemoPass123!'
 const DEMO_TEAMS = [
   'Demo Rovers',
   'Demo Albion',
@@ -35,7 +35,11 @@ export async function handler(event) {
     const requestedCount = Number(payload.count || 8)
     const count = Math.min(Math.max(requestedCount, 2), DEMO_TEAMS.length)
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      realtime: {
+        transport: ws,
+      },
+    })
 
     const { data: league, error: leagueError } = await supabase
       .from('fantasy_leagues')
@@ -85,7 +89,6 @@ export async function handler(event) {
 
       createdUsers.push({
         email,
-        password: DEMO_PASSWORD,
         username,
         teamName,
         userId: user.id,
@@ -95,7 +98,6 @@ export async function handler(event) {
     return jsonResponse(200, {
       league,
       count: createdUsers.length,
-      demoPassword: DEMO_PASSWORD,
       users: createdUsers,
     })
   } catch (error) {
@@ -110,7 +112,7 @@ async function createOrFindUser(supabase, email) {
 
   const { data, error } = await supabase.auth.admin.createUser({
     email,
-    password: DEMO_PASSWORD,
+    password: crypto.randomUUID(),
     email_confirm: true,
   })
 
