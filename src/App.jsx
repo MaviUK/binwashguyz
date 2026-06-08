@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import AuthPanel from './components/AuthPanel'
+import GameweekBuilder from './components/GameweekBuilder'
 import './App.css'
 
 const COMPETITIONS = [
@@ -116,6 +117,12 @@ function App() {
       </section>
 
       <AuthPanel />
+
+      <GameweekBuilder
+        matches={matches}
+        competition={competition}
+        competitionName={selectedCompetition?.name || competition}
+      />
 
       <section className="rules-grid" aria-label="Game rules summary">
         <article>
