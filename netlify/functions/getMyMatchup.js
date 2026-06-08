@@ -1,10 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
 import WebSocket from 'ws'
 
 globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
 export async function handler(event) {
   try {
+    const { createClient } = await import('@supabase/supabase-js')
     const supabaseUrl = process.env.VITE_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
