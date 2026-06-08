@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
+import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
@@ -47,21 +48,13 @@ export default function PickScreen() {
 
     try {
       const userId = await getUserId()
+      const data = await loadPlayerMatchupFromSupabase(supabase, userId, gameweekNumber)
 
-      const matchupResponse = await fetch(
-        `/.netlify/functions/getMyMatchup?gameweek=${gameweekNumber}&userId=${userId}`
-      )
-      const matchupData = await matchupResponse.json()
-
-      if (!matchupResponse.ok) {
-        throw new Error(matchupData.message || matchupData.error || 'Could not load your matchup')
-      }
-
-      setAssignedSide(matchupData.assignedSide)
-      setMatchup(matchupData.matchup)
-      setOpponent(matchupData.opponent)
-      setGameweek(matchupData.gameweek)
-      setFixtures(matchupData.fixtures || [])
+      setAssignedSide(data.assignedSide)
+      setMatchup(data.matchup)
+      setOpponent(data.opponent)
+      setGameweek(data.gameweek)
+      setFixtures(data.fixtures || [])
     } catch (err) {
       setError(err.message)
       setGameweek(null)
