@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import AuthPanel from './components/AuthPanel'
 import GameweekBuilder from './components/GameweekBuilder'
+import PickScreen from './components/PickScreen'
 import './App.css'
 
 const COMPETITIONS = [
@@ -123,6 +124,8 @@ function App() {
         competition={competition}
         competitionName={selectedCompetition?.name || competition}
       />
+
+      <PickScreen />
 
       <section className="rules-grid" aria-label="Game rules summary">
         <article>
