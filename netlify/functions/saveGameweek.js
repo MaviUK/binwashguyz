@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import ws from 'ws'
 
 const DEFAULT_LEAGUE_NAME = 'Main League'
 const DEFAULT_SEASON_NAME = '2026/27'
@@ -30,7 +31,11 @@ export async function handler(event) {
       return jsonResponse(400, { error: 'Exactly 10 fixtures are required.' })
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      realtime: {
+        transport: ws,
+      },
+    })
 
     const { data: league, error: leagueError } = await supabase
       .from('fantasy_leagues')
