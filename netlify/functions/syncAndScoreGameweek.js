@@ -84,19 +84,32 @@ export async function handler(event) {
 
     const entryScoreMap = new Map()
     let picksScored = 0
+    let entriesWithTooManyPicks = 0
 
     for (const entry of entries || []) {
       const { data: picks, error: picksError } = await supabase
         .from('fantasy_entry_picks')
         .select('*')
         .eq('entry_id', entry.id)
+        .order('created_at', { ascending: true })
 
       if (picksError) throw picksError
+
+      const validPicks = (picks || []).slice(0, 3)
+      const extraPicks = (picks || []).slice(3)
+
+      if (extraPicks.length > 0) {
+        entriesWithTooManyPicks += 1
+        await supabase
+          .from('fantasy_entry_picks')
+          .delete()
+          .in('id', extraPicks.map((pick) => pick.id))
+      }
 
       let entryTotal = 0
       let scoredCount = 0
 
-      for (const pick of picks || []) {
+      for (const pick of validPicks) {
         const fixture = fixtureMap.get(pick.real_fixture_id)
         if (!fixture) continue
 
@@ -145,6 +158,7 @@ export async function handler(event) {
       const away = entryScoreMap.get(matchup.away_user_id)
 
       if (!home || !away) continue
+      if (home.scoredCount < 3 || away.scoredCount < 3) continue
 
       const homeScore = home.total
       const awayScore = away.total
@@ -179,6 +193,7 @@ export async function handler(event) {
       fixturesChecked: fixtures.length,
       finishedFixtures: finishedFixtures.length,
       picksScored,
+      entriesWithTooManyPicks,
       matchesScored: scoredMatches.length,
       scoredMatches,
     })
