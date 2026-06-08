@@ -64,6 +64,7 @@ input:focus-visible {
 .hero,
 .fixtures,
 .auth-panel,
+.league-panel,
 .builder-panel,
 .pick-panel,
 .rules-grid article {
@@ -195,6 +196,7 @@ select {
 }
 
 .auth-panel,
+.league-panel,
 .builder-panel,
 .pick-panel {
   border-radius: 28px;
@@ -236,6 +238,10 @@ select {
   padding: 18px;
   background: #ffffff;
   color: #07130d;
+}
+
+.matchup-card {
+  margin-top: 12px;
 }
 
 .builder-list,
