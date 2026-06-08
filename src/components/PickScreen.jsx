@@ -3,7 +3,7 @@ import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 import './PickScreen.css'
 
-const PICK_SCREEN_VERSION = 'server-save-v1'
+const PICK_SCREEN_VERSION = 'auto-next-week-v1'
 
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
@@ -42,7 +42,82 @@ export default function PickScreen() {
     return userId
   }
 
-  async function loadGameweekAndMatchup() {
+  async function findCurrentGameweekNumber(userId) {
+    const { data: gameweeks, error: gameweeksError } = await supabase
+      .from('fantasy_gameweeks')
+      .select('id, gameweek_number, status')
+      .order('gameweek_number', { ascending: true })
+
+    if (gameweeksError) throw gameweeksError
+    if (!gameweeks || gameweeks.length === 0) throw new Error('No gameweeks have been imported yet.')
+
+    const { data: matchups, error: matchupsError } = await supabase
+      .from('fantasy_matches')
+      .select('fantasy_gameweek_id')
+      .or(`home_user_id.eq.${userId},away_user_id.eq.${userId}`)
+
+    if (matchupsError) throw matchupsError
+
+    const { data: entries, error: entriesError } = await supabase
+      .from('fantasy_entries')
+      .select('fantasy_gameweek_id, status')
+      .eq('user_id', userId)
+      .eq('status', 'submitted')
+
+    if (entriesError) throw entriesError
+
+    const matchupGameweekIds = new Set((matchups || []).map((item) => item.fantasy_gameweek_id))
+    const submittedGameweekIds = new Set((entries || []).map((item) => item.fantasy_gameweek_id))
+    const unscoredGameweeks = gameweeks.filter((item) => item.status !== 'scored')
+
+    const firstUnpickedWithMatchup = unscoredGameweeks.find(
+      (item) => matchupGameweekIds.has(item.id) && !submittedGameweekIds.has(item.id)
+    )
+
+    if (firstUnpickedWithMatchup) return firstUnpickedWithMatchup.gameweek_number
+
+    const firstOpenWithMatchup = unscoredGameweeks.find((item) => matchupGameweekIds.has(item.id))
+    if (firstOpenWithMatchup) return firstOpenWithMatchup.gameweek_number
+
+    const firstUnscored = unscoredGameweeks[0]
+    if (firstUnscored) return firstUnscored.gameweek_number
+
+    throw new Error('All imported gameweeks are complete.')
+  }
+
+  async function loadGameweekAndMatchup(nextGameweekNumber = gameweekNumber, options = {}) {
+    setLoading(true)
+    setError('')
+    if (!options.keepMessage) setMessage('')
+    setSelectedIds([])
+    setMatchup(null)
+    setPlayer(null)
+    setOpponent(null)
+
+    try {
+      const userId = await getUserId()
+      const cleanGameweekNumber = Number(nextGameweekNumber)
+      const data = await loadPlayerMatchupFromSupabase(supabase, userId, cleanGameweekNumber)
+
+      setGameweekNumber(cleanGameweekNumber)
+      setAssignedSide(data.assignedSide)
+      setMatchup(data.matchup)
+      setPlayer(data.player)
+      setOpponent(data.opponent)
+      setGameweek(data.gameweek)
+      setFixtures((data.fixtures || []).slice(0, 10))
+
+      if (options.successMessage) setMessage(options.successMessage)
+    } catch (err) {
+      setError(err.message)
+      setGameweek(null)
+      setFixtures([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function loadCurrentGameweek() {
     setLoading(true)
     setError('')
     setMessage('')
@@ -53,19 +128,14 @@ export default function PickScreen() {
 
     try {
       const userId = await getUserId()
-      const data = await loadPlayerMatchupFromSupabase(supabase, userId, gameweekNumber)
-
-      setAssignedSide(data.assignedSide)
-      setMatchup(data.matchup)
-      setPlayer(data.player)
-      setOpponent(data.opponent)
-      setGameweek(data.gameweek)
-      setFixtures((data.fixtures || []).slice(0, 10))
+      const currentGameweekNumber = await findCurrentGameweekNumber(userId)
+      await loadGameweekAndMatchup(currentGameweekNumber, {
+        successMessage: `Loaded current Gameweek ${currentGameweekNumber}.`,
+      })
     } catch (err) {
       setError(err.message)
       setGameweek(null)
       setFixtures([])
-    } finally {
       setLoading(false)
     }
   }
@@ -139,7 +209,12 @@ export default function PickScreen() {
         throw new Error(data.message || data.error || 'Could not save picks.')
       }
 
-      setMessage(`Picks submitted. ${data.pickCount || 0} teams saved.`)
+      const nextGameweekNumber = Number(gameweek.gameweek_number) + 1
+      setSaving(false)
+      await loadGameweekAndMatchup(nextGameweekNumber, {
+        keepMessage: true,
+        successMessage: `Picks submitted. ${data.pickCount || 0} teams saved. Loaded Gameweek ${nextGameweekNumber}.`,
+      })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -173,8 +248,11 @@ export default function PickScreen() {
             onChange={(event) => setGameweekNumber(event.target.value)}
           />
         </label>
-        <button type="button" onClick={loadGameweekAndMatchup} disabled={loading}>
-          {loading ? 'Loading...' : 'Load week'}
+        <button type="button" onClick={loadCurrentGameweek} disabled={loading}>
+          {loading ? 'Loading...' : 'Load current week'}
+        </button>
+        <button type="button" className="secondary-button" onClick={() => loadGameweekAndMatchup()} disabled={loading}>
+          Load selected week
         </button>
       </div>
 
@@ -240,7 +318,7 @@ export default function PickScreen() {
       )}
 
       {fixtures.length > 0 && (
-        <button type="button" onClick={submitPicks} disabled={saving || selectedIds.length !== 3}>
+        <button type="button" onClick={submitPicks} disabled={saving || loading || selectedIds.length !== 3}>
           {saving ? 'Submitting...' : 'Submit 3 picks'}
         </button>
       )}
