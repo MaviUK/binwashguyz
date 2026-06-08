@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 import { loadPlayerMatchupFromSupabase } from '../lib/loadPlayerMatchup'
 
-const PICK_SCREEN_VERSION = 'direct-picks-v4'
+const PICK_SCREEN_VERSION = 'direct-picks-v5'
 
 function formatKickoff(kickoffAt) {
   if (!kickoffAt) return 'Kickoff TBC'
@@ -127,6 +127,13 @@ export default function PickScreen() {
       if (entryError) throw entryError
       if (!entry?.id) throw new Error('Could not save your entry.')
 
+      const { error: clearError } = await supabase
+        .from('fantasy_entry_picks')
+        .delete()
+        .eq('entry_id', entry.id)
+
+      if (clearError) throw clearError
+
       const rows = selectedFixtures.map((fixture) => {
         const isHome = assignedSide === 'home'
 
@@ -141,9 +148,7 @@ export default function PickScreen() {
 
       const { data: savedPicks, error: picksError } = await supabase
         .from('fantasy_entry_picks')
-        .upsert(rows, {
-          onConflict: 'entry_id,real_fixture_id',
-        })
+        .insert(rows)
         .select()
 
       if (picksError) throw picksError
