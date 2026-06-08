@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import WebSocket from 'ws'
+
+globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') {
@@ -6,6 +8,7 @@ export async function handler(event) {
   }
 
   try {
+    const { createClient } = await import('@supabase/supabase-js')
     const supabaseUrl = process.env.VITE_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -28,7 +31,20 @@ export async function handler(event) {
       return jsonResponse(400, { error: 'Exactly 3 picks are required.' })
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const uniqueFixtureIds = new Set(picks.map((pick) => String(pick.realFixtureId)))
+    if (uniqueFixtureIds.size !== 3) {
+      return jsonResponse(400, { error: 'Your 3 picks must come from 3 different fixtures.' })
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      realtime: {
+        transport: WebSocket,
+      },
+    })
 
     const { data: entry, error: entryError } = await supabase
       .from('fantasy_entries')
@@ -74,6 +90,7 @@ export async function handler(event) {
     return jsonResponse(200, {
       entryId: entry.id,
       pickCount: savedPicks.length,
+      picks: savedPicks,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
