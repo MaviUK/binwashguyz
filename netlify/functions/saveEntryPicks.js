@@ -1,4 +1,5 @@
 import WebSocket from 'ws'
+import { completeTestingGameweek } from './lib/completeTestingGameweek.js'
 
 globalThis.WebSocket = globalThis.WebSocket || WebSocket
 
@@ -18,6 +19,7 @@ export async function handler(event) {
 
     const payload = JSON.parse(event.body || '{}')
     const { userId, gameweekId, assignedSide, picks } = payload
+    const autoCompleteGameweek = payload.autoCompleteGameweek !== false
 
     if (!userId || !gameweekId) {
       return jsonResponse(400, { error: 'Missing userId or gameweekId.' })
@@ -87,10 +89,16 @@ export async function handler(event) {
 
     if (picksError) throw picksError
 
+    let completion = null
+    if (autoCompleteGameweek) {
+      completion = await completeTestingGameweek(supabase, gameweekId)
+    }
+
     return jsonResponse(200, {
       entryId: entry.id,
       pickCount: savedPicks.length,
       picks: savedPicks,
+      completion,
     })
   } catch (error) {
     return jsonResponse(500, { error: error.message })
